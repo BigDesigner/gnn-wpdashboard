@@ -4,6 +4,18 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.1.0] - 2026-08-05
+
+### Fixed
+- Kendi kendini güncelleme sırasında çalışan plugin dizininin silinmesi hatası giderildi (self-update artık "Paket kurulamadı" hatası vermiyor)
+
+### Changed
+- Durum filtresi sıralaması: Tümü, Kuruluma Hazır, Aktif, Pasif, Güncelleme
+- "Kurulu & Aktif" etiketi "Aktif" olarak sadeleştirildi
+- "Güncelleme Var" etiketi "Güncelleme" olarak sadeleştirildi
+
+---
+
 ## [1.0.9] - 2026-08-05
 
 ### Added

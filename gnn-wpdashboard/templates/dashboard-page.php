@@ -66,14 +66,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<span id="count-all" class="bg-surface-container-lowest text-on-surface text-xs px-2 py-0.5 rounded-full font-bold">0</span>
 					</button>
 
-					<button data-status="active" class="status-tab flex items-center justify-between text-on-surface-variant hover:bg-surface-container-high rounded-lg px-3 py-2 text-sm font-medium transition-all border-none cursor-pointer">
-						<span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg text-emerald-600">check_circle</span> <?php esc_html_e( 'Kurulu & Aktif', 'gnn-wpdashboard' ); ?></span>
-						<span id="count-active" class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+					<button data-status="uninstalled" class="status-tab flex items-center justify-between text-on-surface-variant hover:bg-surface-container-high rounded-lg px-3 py-2 text-sm font-medium transition-all border-none cursor-pointer">
+						<span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg text-blue-500">download</span> <?php esc_html_e( 'Kuruluma Hazır', 'gnn-wpdashboard' ); ?></span>
+						<span id="count-uninstalled" class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
 					</button>
 
-					<button data-status="updates" class="status-tab flex items-center justify-between text-on-surface-variant hover:bg-surface-container-high rounded-lg px-3 py-2 text-sm font-medium transition-all border-none cursor-pointer">
-						<span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg text-amber-600">upgrade</span> <?php esc_html_e( 'Güncelleme Var', 'gnn-wpdashboard' ); ?></span>
-						<span id="count-updates" class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+					<button data-status="active" class="status-tab flex items-center justify-between text-on-surface-variant hover:bg-surface-container-high rounded-lg px-3 py-2 text-sm font-medium transition-all border-none cursor-pointer">
+						<span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg text-emerald-600">check_circle</span> <?php esc_html_e( 'Aktif', 'gnn-wpdashboard' ); ?></span>
+						<span id="count-active" class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
 					</button>
 
 					<button data-status="inactive" class="status-tab flex items-center justify-between text-on-surface-variant hover:bg-surface-container-high rounded-lg px-3 py-2 text-sm font-medium transition-all border-none cursor-pointer">
@@ -81,9 +81,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<span id="count-inactive" class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
 					</button>
 
-					<button data-status="uninstalled" class="status-tab flex items-center justify-between text-on-surface-variant hover:bg-surface-container-high rounded-lg px-3 py-2 text-sm font-medium transition-all border-none cursor-pointer">
-						<span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg text-blue-500">download</span> <?php esc_html_e( 'Kuruluma Hazır', 'gnn-wpdashboard' ); ?></span>
-						<span id="count-uninstalled" class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+					<button data-status="updates" class="status-tab flex items-center justify-between text-on-surface-variant hover:bg-surface-container-high rounded-lg px-3 py-2 text-sm font-medium transition-all border-none cursor-pointer">
+						<span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg text-amber-600">upgrade</span> <?php esc_html_e( 'Güncelleme', 'gnn-wpdashboard' ); ?></span>
+						<span id="count-updates" class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
 					</button>
 				</div>
 
