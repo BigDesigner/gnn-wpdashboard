@@ -523,18 +523,28 @@ class GNN_WPDashboard_Installer {
 			$dest_dir          = WP_PLUGIN_DIR . '/' . $slug;
 			$installed_plugins = get_plugins();
 			$found             = $this->find_installed_plugin_file( $slug, $installed_plugins );
+
+			// Never pre-delete our own currently executing plugin directory —
+			// doing so mid-request crashes this very AJAX call. The upgrader's
+			// own 'clear_destination' option safely replaces files in place instead.
+			$is_self = defined( 'GNN_WPDASHBOARD_FILE' ) && $found === plugin_basename( GNN_WPDASHBOARD_FILE );
+
 			if ( $found ) {
 				$was_active = is_plugin_active( $found );
-				if ( $was_active ) {
+				if ( $was_active && ! $is_self ) {
 					deactivate_plugins( $found );
 				}
-				$found_dir = WP_PLUGIN_DIR . '/' . dirname( $found );
-				if ( is_dir( $found_dir ) && $found_dir !== WP_PLUGIN_DIR ) {
-					$this->force_remove_directory( $found_dir );
+				if ( ! $is_self ) {
+					$found_dir = WP_PLUGIN_DIR . '/' . dirname( $found );
+					if ( is_dir( $found_dir ) && $found_dir !== WP_PLUGIN_DIR ) {
+						$this->force_remove_directory( $found_dir );
+					}
 				}
 			}
 		}
-		$this->force_remove_directory( $dest_dir );
+		if ( empty( $is_self ) ) {
+			$this->force_remove_directory( $dest_dir );
+		}
 
 		$skin = new GNN_Silent_Upgrader_Skin();
 
@@ -566,8 +576,8 @@ class GNN_WPDashboard_Installer {
 			return new WP_Error( 'install_failed', __( 'Yükleme başarısız oldu.', 'gnn-wpdashboard' ) );
 		}
 
-		// Re-activate ONLY if item was previously active before update
-		if ( $was_active ) {
+		// Re-activate ONLY if item was previously active before update (self was never deactivated).
+		if ( $was_active && empty( $is_self ) ) {
 			if ( 'theme' === $data['type'] ) {
 				switch_theme( $target_install_slug );
 			} else {
