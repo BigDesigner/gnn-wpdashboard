@@ -268,7 +268,8 @@
 	}
 
 	function createCardHTML(item) {
-		let badgeHTML = `<span class="version-badge-pill">v${item.latest_version}</span>`;
+		const displayVersion = item.installed && item.installed_version ? item.installed_version : item.latest_version;
+		let badgeHTML = `<span class="version-badge-pill">v${displayVersion}</span>`;
 		let borderClass = 'border-outline-variant';
 		let statusBadge = '';
 
