@@ -4,6 +4,17 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.1.1] - 2026-08-05
+
+### Fixed
+- "Paket kurulamadı." hatası giderildi: GitHub API rate limit'e takıldığında kod kaynak arşivini (`archive/refs/tags/*.zip`) indiriyordu; bu arşiv depo kökü olduğu ve eklenti alt klasörde durduğu için WordPress paketi geçersiz sayıyordu
+- ZIP artık her zaman `/releases/latest` üzerinden gerçek release asset'i bulunarak indiriliyor (API'siz, rate limit'ten etkilenmez)
+- Asset dosya adı tahmin edilmiyor, release sayfasından okunuyor (`repo-v1.1.0.zip` / `repo-1.1.0.zip` farkı artık sorun değil)
+- Arşiv indirilse bile paketin gerçek klasörü tespit ediliyor (iç içe depo yapısı desteği)
+- Aynı fallback WordPress'in kendi güncelleme ekranı için de eklendi
+
+---
+
 ## [1.1.0] - 2026-08-05
 
 ### Fixed

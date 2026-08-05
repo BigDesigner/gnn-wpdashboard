@@ -197,14 +197,43 @@ class GNN_WPDashboard_Updater {
 	 * @return string|false Asset URL or false.
 	 */
 	private function get_zip_asset_url( $release ) {
-		if ( empty( $release['assets'] ) || ! is_array( $release['assets'] ) ) {
+		if ( ! empty( $release['assets'] ) && is_array( $release['assets'] ) ) {
+			foreach ( $release['assets'] as $asset ) {
+				if ( ! empty( $asset['name'] ) && substr( $asset['name'], -4 ) === '.zip' && ! empty( $asset['browser_download_url'] ) ) {
+					return $asset['browser_download_url'];
+				}
+			}
+		}
+
+		// The API response can be missing or partial when GitHub rate limits the host,
+		// so read the asset straight off the release page as a fallback.
+		if ( ! empty( $release['tag_name'] ) ) {
+			$asset_url = $this->scrape_release_asset_url( $release['tag_name'] );
+			if ( $asset_url ) {
+				return $asset_url;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Discover the release ZIP asset without calling the GitHub API.
+	 *
+	 * @param string $tag Release tag.
+	 * @return string|false Download URL or false.
+	 */
+	private function scrape_release_asset_url( $tag ) {
+		$url      = 'https://github.com/' . $this->owner . '/' . $this->repo . '/releases/expanded_assets/' . rawurlencode( $tag );
+		$response = wp_remote_get( $url, array( 'timeout' => 10 ) );
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return false;
 		}
 
-		foreach ( $release['assets'] as $asset ) {
-			if ( ! empty( $asset['name'] ) && substr( $asset['name'], -4 ) === '.zip' && ! empty( $asset['browser_download_url'] ) ) {
-				return $asset['browser_download_url'];
-			}
+		$pattern = '#/' . preg_quote( $this->owner, '#' ) . '/' . preg_quote( $this->repo, '#' ) . '/releases/download/[^"\'\s]+\.zip#i';
+		if ( preg_match( $pattern, wp_remote_retrieve_body( $response ), $m ) ) {
+			return 'https://github.com' . $m[0];
 		}
 
 		return false;

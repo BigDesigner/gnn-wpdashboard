@@ -266,10 +266,17 @@ class GNN_WPDashboard_Installer {
 			return $source;
 		}
 
-		// Always rename whatever GitHub extracted to our clean slug name
-		$correct_source = trailingslashit( $remote_source ) . $this->current_install_slug . '/';
+		$slug = $this->current_install_slug;
 
-		if ( $source === $correct_source ) {
+		// GitHub source archives contain the whole repository, and these repos keep the
+		// plugin/theme in a subfolder. Descend into the real package folder first,
+		// otherwise WordPress rejects the archive with "The package could not be installed".
+		$source = $this->descend_to_package_root( $source, $slug );
+
+		// Always rename whatever GitHub extracted to our clean slug name
+		$correct_source = trailingslashit( $remote_source ) . $slug . '/';
+
+		if ( untrailingslashit( $source ) === untrailingslashit( $correct_source ) ) {
 			return $source;
 		}
 
@@ -282,6 +289,76 @@ class GNN_WPDashboard_Installer {
 		}
 
 		return $source;
+	}
+
+	/**
+	 * Locate the directory that actually holds the plugin/theme inside an extracted archive.
+	 *
+	 * @param string $source Extracted source directory.
+	 * @param string $slug   Target slug.
+	 * @return string Directory containing the package.
+	 */
+	private function descend_to_package_root( $source, $slug ) {
+		global $wp_filesystem;
+
+		$source = trailingslashit( $source );
+
+		if ( $this->dir_contains_package( $source ) ) {
+			return $source;
+		}
+
+		$listing = $wp_filesystem->dirlist( $source );
+		if ( ! is_array( $listing ) ) {
+			return $source;
+		}
+
+		// A subfolder named exactly like the slug wins over any other candidate.
+		if ( isset( $listing[ $slug ]['type'] ) && 'd' === $listing[ $slug ]['type'] && $this->dir_contains_package( $source . $slug . '/' ) ) {
+			return $source . $slug . '/';
+		}
+
+		foreach ( $listing as $name => $info ) {
+			if ( empty( $info['type'] ) || 'd' !== $info['type'] || 0 === strpos( $name, '.' ) ) {
+				continue;
+			}
+			if ( $this->dir_contains_package( $source . $name . '/' ) ) {
+				return $source . $name . '/';
+			}
+		}
+
+		return $source;
+	}
+
+	/**
+	 * Check whether a directory is a valid plugin or theme package root.
+	 *
+	 * @param string $dir Directory path.
+	 * @return bool True when the directory holds a plugin header or a theme stylesheet.
+	 */
+	private function dir_contains_package( $dir ) {
+		global $wp_filesystem;
+
+		if ( $wp_filesystem->exists( $dir . 'style.css' ) ) {
+			return true;
+		}
+
+		$listing = $wp_filesystem->dirlist( $dir );
+		if ( ! is_array( $listing ) ) {
+			return false;
+		}
+
+		foreach ( $listing as $name => $info ) {
+			if ( empty( $info['type'] ) || 'f' !== $info['type'] || '.php' !== strtolower( substr( $name, -4 ) ) ) {
+				continue;
+			}
+
+			$contents = $wp_filesystem->get_contents( $dir . $name );
+			if ( is_string( $contents ) && preg_match( '/^[ \t\/*#@]*Plugin Name:/mi', substr( $contents, 0, 8192 ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -394,13 +471,42 @@ class GNN_WPDashboard_Installer {
 			}
 		}
 
-		// Priority 2: Tag from GitHub API response → archive ZIP (no auth needed)
+		// Resolve the real release tag. The API is preferred, but it is rate limited
+		// (403) on shared hosting, so fall back to the /releases/latest redirect.
 		if ( is_array( $release ) && ! empty( $release['tag_name'] ) ) {
-			return 'https://github.com/' . $owner . '/' . $repo . '/archive/refs/tags/' . $release['tag_name'] . '.zip';
+			$tag = $release['tag_name'];
+		} else {
+			$tag = $this->fetch_latest_tag_fallback( $owner, $repo );
 		}
 
-		// Priority 3: Follow /releases/latest redirect to get tag, then build archive URL
-		// This is the simplest direct approach: github.com/{owner}/{repo}/releases/latest → redirect → tag
+		if ( ! $tag ) {
+			return false;
+		}
+
+		// Priority 2: Read the real asset filename off the release page. Asset names are
+		// not predictable ("repo-v1.1.0.zip" vs "repo-1.1.0.zip"), so they must be
+		// discovered rather than guessed. Needs no API call, so rate limits do not apply.
+		$asset_url = $this->fetch_release_asset_url( $owner, $repo, $tag );
+		if ( $asset_url ) {
+			return $asset_url;
+		}
+
+		// Priority 3: Source archive. Only valid when the plugin lives at the repository
+		// root — fix_source_folder_name() descends into the package folder otherwise.
+		return 'https://github.com/' . $owner . '/' . $repo . '/archive/refs/tags/' . $tag . '.zip';
+	}
+
+	/**
+	 * Resolve the latest release tag without using the GitHub API.
+	 *
+	 * Follows the /releases/latest redirect, which stays available when the API
+	 * returns 403 due to rate limiting.
+	 *
+	 * @param string $owner GitHub user.
+	 * @param string $repo  GitHub repository.
+	 * @return string Tag name, or empty string when it cannot be resolved.
+	 */
+	private function fetch_latest_tag_fallback( $owner, $repo ) {
 		$response = wp_remote_head(
 			'https://github.com/' . $owner . '/' . $repo . '/releases/latest',
 			array(
@@ -408,15 +514,43 @@ class GNN_WPDashboard_Installer {
 				'timeout'     => 10,
 			)
 		);
-		if ( ! is_wp_error( $response ) ) {
-			$headers  = wp_remote_retrieve_headers( $response );
-			$location = ! empty( $headers['location'] ) ? $headers['location'] : '';
-			if ( preg_match( '#/releases/tag/(v?[0-9][0-9.]+)#i', $location, $m ) ) {
-				return 'https://github.com/' . $owner . '/' . $repo . '/archive/refs/tags/' . $m[1] . '.zip';
-			}
+
+		if ( is_wp_error( $response ) ) {
+			return '';
 		}
 
-		return false;
+		$headers  = wp_remote_retrieve_headers( $response );
+		$location = ! empty( $headers['location'] ) ? $headers['location'] : '';
+
+		if ( preg_match( '#/releases/tag/([^/?\#\s"\']+)#i', $location, $m ) ) {
+			return urldecode( $m[1] );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Discover the ZIP asset attached to a release by parsing its assets fragment.
+	 *
+	 * @param string $owner GitHub user.
+	 * @param string $repo  GitHub repository.
+	 * @param string $tag   Release tag.
+	 * @return string Download URL, or empty string when no ZIP asset is attached.
+	 */
+	private function fetch_release_asset_url( $owner, $repo, $tag ) {
+		$url      = 'https://github.com/' . $owner . '/' . $repo . '/releases/expanded_assets/' . rawurlencode( $tag );
+		$response = wp_remote_get( $url, array( 'timeout' => 10 ) );
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return '';
+		}
+
+		$pattern = '#/' . preg_quote( $owner, '#' ) . '/' . preg_quote( $repo, '#' ) . '/releases/download/[^"\'\s]+\.zip#i';
+		if ( preg_match( $pattern, wp_remote_retrieve_body( $response ), $m ) ) {
+			return 'https://github.com' . $m[0];
+		}
+
+		return '';
 	}
 
 	/**
