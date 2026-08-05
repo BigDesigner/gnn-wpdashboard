@@ -658,26 +658,24 @@ class GNN_WPDashboard_Installer {
 			$installed_plugins = get_plugins();
 			$found             = $this->find_installed_plugin_file( $slug, $installed_plugins );
 
-			// Never pre-delete our own currently executing plugin directory —
-			// doing so mid-request crashes this very AJAX call. The upgrader's
-			// own 'clear_destination' option safely replaces files in place instead.
+			// Never deactivate our own currently executing plugin mid-request.
 			$is_self = defined( 'GNN_WPDASHBOARD_FILE' ) && $found === plugin_basename( GNN_WPDASHBOARD_FILE );
 
 			if ( $found ) {
 				$was_active = is_plugin_active( $found );
-				if ( $was_active && ! $is_self ) {
-					deactivate_plugins( $found );
-				}
-				if ( ! $is_self ) {
-					$found_dir = WP_PLUGIN_DIR . '/' . dirname( $found );
-					if ( is_dir( $found_dir ) && $found_dir !== WP_PLUGIN_DIR ) {
-						$this->force_remove_directory( $found_dir );
+				$found_dir  = WP_PLUGIN_DIR . '/' . dirname( $found );
+
+				// Only clear away a stale folder that carries a different name than the
+				// destination. The destination itself is replaced by the upgrader, so it
+				// must never be deleted up front: a failed download would otherwise wipe
+				// a working plugin.
+				if ( ! $is_self && $found_dir !== $dest_dir && is_dir( $found_dir ) && $found_dir !== WP_PLUGIN_DIR ) {
+					if ( $was_active ) {
+						deactivate_plugins( $found );
 					}
+					$this->force_remove_directory( $found_dir );
 				}
 			}
-		}
-		if ( empty( $is_self ) ) {
-			$this->force_remove_directory( $dest_dir );
 		}
 
 		$skin = new GNN_Silent_Upgrader_Skin();
@@ -685,14 +683,22 @@ class GNN_WPDashboard_Installer {
 		$this->current_install_slug = $target_install_slug;
 		add_filter( 'upgrader_source_selection', array( $this, 'fix_source_folder_name' ), 10, 4 );
 
+		// WP_Upgrader::install() ignores a 'clear_destination' argument — it derives that
+		// flag from 'overwrite_package', which defaults to false. Without this the upgrader
+		// aborts with "Destination folder already exists." on every reinstall or update.
+		$install_args = array(
+			'overwrite_package' => true,
+			'clear_destination' => true,
+		);
+
 		if ( 'theme' === $data['type'] ) {
 			require_once ABSPATH . 'wp-admin/includes/theme.php';
 			$upgrader = new Theme_Upgrader( $skin );
-			$result   = $upgrader->install( $zip_url, array( 'clear_destination' => true ) );
+			$result   = $upgrader->install( $zip_url, $install_args );
 		} else {
 			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 			$upgrader = new Plugin_Upgrader( $skin );
-			$result   = $upgrader->install( $zip_url, array( 'clear_destination' => true ) );
+			$result   = $upgrader->install( $zip_url, $install_args );
 		}
 
 		remove_filter( 'upgrader_source_selection', array( $this, 'fix_source_folder_name' ), 10 );

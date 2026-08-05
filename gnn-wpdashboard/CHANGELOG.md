@@ -4,6 +4,20 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.1.3] - 2026-08-05
+
+### Fixed
+- "Hedef klasör zaten var." hatası giderildi: `WP_Upgrader::install()` gönderilen `clear_destination` parametresini yok sayıp `overwrite_package` bekliyor; bu bayrak eklendi
+- Hedef klasör artık kurulum öncesi silinmiyor — indirme başarısız olursa çalışan eklenti siliniyordu, bu risk kalktı
+- Yalnızca farklı isimli eski klasör temizleniyor
+
+### Changed
+- Dil dosyaları sıfırdan yeniden üretildi: 13 metin → **40 metin** (`.pot`, `tr_TR.po`, `tr_TR.mo`)
+- Derlenmiş `.mo` dosyası eklendi — çeviriler artık gerçekten yükleniyor
+- `Donate`, `Settings`, `Check Updates` metinleri Türkçeye çevrildi
+
+---
+
 ## [1.1.2] - 2026-08-05
 
 ### Changed

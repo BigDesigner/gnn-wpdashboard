@@ -2,53 +2,177 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: GNN WPDashboard 1.0.0\n"
+"Project-Id-Version: GNN WPDashboard 1.1.3\n"
 "Report-Msgid-Bugs-To: https://github.com/BigDesigner/gnn-wpdashboard/issues\n"
-"POT-Creation-Date: 2026-08-05 02:58+0300\n"
+"POT-Creation-Date: 2026-08-05 06:30+0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-08-05 02:58+0300\n"
+"PO-Revision-Date: 2026-08-05 06:30+0300\n"
 "Last-Translator: BigDesigner <support@gnndigital.com>\n"
 "Language-Team: Turkish <support@gnndigital.com>\n"
 "Language: tr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Domain: gnn-wpdashboard\n"
 
-msgid "GNN WPDashboard"
+#: templates/dashboard-page.php:75
+msgid "Aktif"
 msgstr ""
 
-msgid "Eklentilerinizi tek bir panelden kurun, güncelleyin ve yönetin."
-msgstr ""
-
-msgid "Güncellemeleri Kontrol Et"
-msgstr ""
-
-msgid "Tümünü Kur"
-msgstr ""
-
-msgid "Tümünü Etkinleştir"
-msgstr ""
-
-msgid "Tümünü Devre Dışı Bırak"
-msgstr ""
-
-msgid "Tümünü Sil"
-msgstr ""
-
-msgid "Geçersiz slug adı."
-msgstr ""
-
-msgid "GitHub Tag Release paketi (.zip) bulunamadı."
-msgstr ""
-
-msgid "Yükleme başarısız oldu."
-msgstr ""
-
+#: includes/class-gnn-wpdashboard-installer.php:786
 msgid "Aktif durumdaki tema silinemez."
 msgstr ""
 
-msgid "Bağış Yap"
+#: gnn-wpdashboard.php:256
+msgid "Başarıyla etkinleştirildi."
 msgstr ""
 
-msgid "Ayarlar"
+#: gnn-wpdashboard.php:303
+msgid "Başarıyla silindi."
+msgstr ""
+
+#: gnn-wpdashboard.php:180
+msgid "Bu sayfaya erişim yetkiniz yok."
+msgstr ""
+
+#: gnn-wpdashboard.php:141
+msgid "Check Updates"
+msgstr ""
+
+#: templates/dashboard-page.php:62
+msgid "DURUM FİLTRESİ"
+msgstr ""
+
+#: gnn-wpdashboard.php:135
+msgid "Donate"
+msgstr ""
+
+#: gnn-wpdashboard.php:248 gnn-wpdashboard.php:295
+msgid "Dosya veya slug belirtilmedi."
+msgstr ""
+
+#: gnn-wpdashboard.php:232
+msgid "Eklenti başarıyla yüklendi."
+msgstr ""
+
+#: gnn-wpdashboard.php:279
+msgid "Eklenti devre dışı bırakıldı."
+msgstr ""
+
+#: gnn-wpdashboard.php:271
+msgid "Eklenti dosyası belirtilmedi."
+msgstr ""
+
+#: templates/dashboard-page.php:143
+msgid "Eklenti listesi yükleniyor..."
+msgstr ""
+
+#: gnn-wpdashboard.php:224
+msgid "Eklenti slug belirtilmedi."
+msgstr ""
+
+#: templates/dashboard-page.php:30
+msgid "Eklentilerde ara..."
+msgstr ""
+
+#: gnn-wpdashboard.php:115
+msgid "GNN Dashboard"
+msgstr ""
+
+#: includes/class-gnn-wpdashboard-installer.php:620
+msgid "Geçersiz slug adı."
+msgstr ""
+
+#: includes/class-gnn-wpdashboard-installer.php:628
+msgid "GitHub Tag Release paketi (.zip) bulunamadı."
+msgstr ""
+
+#: templates/dashboard-page.php:85
+msgid "Güncelleme"
+msgstr ""
+
+#: templates/dashboard-page.php:48
+msgid "Güncelleme Mevcut"
+msgstr ""
+
+#: templates/dashboard-page.php:36
+msgid "Güncellemeleri Kontrol Et"
+msgstr ""
+
+#: templates/dashboard-page.php:70
+msgid "Hazır"
+msgstr ""
+
+#: templates/dashboard-page.php:92
+msgid "KATEGORİLER"
+msgstr ""
+
+#: templates/dashboard-page.php:186
+msgid "Kapat"
+msgstr ""
+
+#: templates/dashboard-page.php:80
+msgid "Pasif"
+msgstr ""
+
+#: gnn-wpdashboard.php:138
+msgid "Settings"
+msgstr ""
+
+#: templates/dashboard-page.php:175
+msgid "Sürüm Notları (Changelog):"
+msgstr ""
+
+#: templates/dashboard-page.php:121
+msgid "Toplam"
+msgstr ""
+
+#: gnn-wpdashboard.php:342
+msgid "Tüm eklentiler devre dışı bırakıldı."
+msgstr ""
+
+#: gnn-wpdashboard.php:355
+msgid "Tüm eklentiler ve temalar silindi."
+msgstr ""
+
+#: gnn-wpdashboard.php:329
+msgid "Tüm ögeler etkinleştirildi."
+msgstr ""
+
+#: gnn-wpdashboard.php:316
+msgid "Tüm ögeler kuruldu."
+msgstr ""
+
+#: templates/dashboard-page.php:65 templates/dashboard-page.php:95
+msgid "Tümü"
+msgstr ""
+
+#: templates/dashboard-page.php:130
+msgid "Tümünü Devre Dışı Bırak"
+msgstr ""
+
+#: templates/dashboard-page.php:127
+msgid "Tümünü Etkinleştir"
+msgstr ""
+
+#: templates/dashboard-page.php:124
+msgid "Tümünü Kur"
+msgstr ""
+
+#: templates/dashboard-page.php:133
+msgid "Tümünü Sil"
+msgstr ""
+
+#: gnn-wpdashboard.php:193 gnn-wpdashboard.php:206 gnn-wpdashboard.php:219 gnn-wpdashboard.php:242
+#: gnn-wpdashboard.php:266 gnn-wpdashboard.php:289 gnn-wpdashboard.php:312 gnn-wpdashboard.php:325
+#: gnn-wpdashboard.php:338 gnn-wpdashboard.php:351
+msgid "Yetkisiz erişim."
+msgstr ""
+
+#: includes/class-gnn-wpdashboard-installer.php:716
+msgid "Yükleme başarısız oldu."
+msgstr ""
+
+#: templates/dashboard-page.php:121
+msgid "eklenti listeleniyor"
 msgstr ""
