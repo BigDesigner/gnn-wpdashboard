@@ -179,9 +179,12 @@
 	background: repeating-linear-gradient(30deg, rgba(255, 255, 255, 0.1) 0px, rgba(255, 255, 255, 0.1) 1px, transparent 1px, transparent 16px), repeating-linear-gradient(150deg, rgba(255, 255, 255, 0.1) 0px, rgba(255, 255, 255, 0.1) 1px, transparent 1px, transparent 16px), linear-gradient(135deg, #4f46e5 0%, #3730a3 100%) !important;
 }
 
-/* 10. GNN Dashboard - Radial Dot Grid Pattern */
+/* 10. GNN Dashboard - Premium Cyber Matrix Hexagon Grid Pattern */
 .plugin-banner-wpdashboard {
-	background: radial-gradient(rgba(255, 255, 255, 0.25) 1.5px, transparent 1.5px) 0 0 / 14px 14px, linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+	background: 
+		repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.09) 0px, rgba(255, 255, 255, 0.09) 1px, transparent 1px, transparent 16px),
+		repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.09) 0px, rgba(255, 255, 255, 0.09) 1px, transparent 1px, transparent 16px),
+		linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%) !important;
 }
 
 /* Version Badge Prominent Pill Styling */
