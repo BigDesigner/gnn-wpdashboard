@@ -397,7 +397,7 @@ class GNN_WPDashboard_Installer {
 	private function resolve_release_zip_url( $data, $release ) {
 		// 1. Try resolving from GitHub API Release response if available
 		if ( is_array( $release ) ) {
-			// Prefer direct release asset ZIP (no auth required)
+			// Priority 1: Custom uploaded ZIP asset on the Release page
 			if ( ! empty( $release['assets'] ) && is_array( $release['assets'] ) ) {
 				foreach ( $release['assets'] as $asset ) {
 					if ( ! empty( $asset['name'] ) && substr( $asset['name'], -4 ) === '.zip' && ! empty( $asset['browser_download_url'] ) ) {
@@ -406,14 +406,9 @@ class GNN_WPDashboard_Installer {
 				}
 			}
 
-			// Prefer public archive URL over zipball_url (zipball requires GitHub auth on some hosts)
+			// Priority 2: Public archive URL — does NOT require GitHub auth (zipball_url is intentionally avoided)
 			if ( ! empty( $release['tag_name'] ) ) {
 				return 'https://github.com/' . $data['owner'] . '/' . $data['repo'] . '/archive/refs/tags/' . $release['tag_name'] . '.zip';
-			}
-
-			// zipball_url last resort
-			if ( ! empty( $release['zipball_url'] ) ) {
-				return $release['zipball_url'];
 			}
 		}
 
