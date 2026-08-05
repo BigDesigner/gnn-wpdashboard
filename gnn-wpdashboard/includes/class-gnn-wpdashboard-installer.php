@@ -261,37 +261,24 @@ class GNN_WPDashboard_Installer {
 			return $source;
 		}
 
-		$slug            = $this->current_install_slug;
-		$source_dir_name = trim( basename( $source ), '/' );
-
-		// Strip GitHub archive suffixes: -1.5.1, -v1.5.1, -main, -master, -abc1234 (hash)
-		// e.g. gnn-wpdashboard-1.0.3 → gnn-wpdashboard
-		// e.g. BigDesigner-gnn-wpdashboard-a1b2c3d → gnn-wpdashboard
-		$cleaned = preg_replace( '/(-v?[0-9]+\.[0-9]+(\.[0-9]+)*|-[0-9a-f]{7,}|-main|-master)$/i', '', $source_dir_name );
-		// If cleaning produces the expected slug, use it; otherwise fall back to slug
-		if ( ! empty( $cleaned ) && $cleaned !== $source_dir_name ) {
-			// Accept if cleaned result ends with or equals slug
-			if ( $cleaned === $slug || false !== strpos( $cleaned, $slug ) ) {
-				$slug = $slug; // keep original slug, just rename the folder
-			}
-		} elseif ( ! empty( $source_dir_name ) && ! preg_match( '/-[0-9a-f]{7,}$|-v?[0-9]+\.[0-9]+|-main|-master/i', $source_dir_name ) ) {
-			// Folder already clean (e.g. 'gnn') - preserve as-is
-			$slug                       = $source_dir_name;
-			$this->current_install_slug = $slug;
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			return $source;
 		}
 
-		$correct_source = trailingslashit( $remote_source ) . $slug . '/';
+		// Always rename whatever GitHub extracted to our clean slug name
+		$correct_source = trailingslashit( $remote_source ) . $this->current_install_slug . '/';
 
-		if ( $source !== $correct_source ) {
-			global $wp_filesystem;
-			if ( $wp_filesystem ) {
-				if ( $wp_filesystem->exists( $correct_source ) ) {
-					$wp_filesystem->delete( $correct_source, true );
-				}
-				if ( $wp_filesystem->move( $source, $correct_source ) ) {
-					return $correct_source;
-				}
-			}
+		if ( $source === $correct_source ) {
+			return $source;
+		}
+
+		if ( $wp_filesystem->exists( $correct_source ) ) {
+			$wp_filesystem->delete( $correct_source, true );
+		}
+
+		if ( $wp_filesystem->move( $source, $correct_source ) ) {
+			return $correct_source;
 		}
 
 		return $source;
@@ -395,45 +382,41 @@ class GNN_WPDashboard_Installer {
 	 * @return string|false
 	 */
 	private function resolve_release_zip_url( $data, $release ) {
-		// 1. Try resolving from GitHub API Release response if available
-		if ( is_array( $release ) ) {
-			// Priority 1: Custom uploaded ZIP asset on the Release page
-			if ( ! empty( $release['assets'] ) && is_array( $release['assets'] ) ) {
-				foreach ( $release['assets'] as $asset ) {
-					if ( ! empty( $asset['name'] ) && substr( $asset['name'], -4 ) === '.zip' && ! empty( $asset['browser_download_url'] ) ) {
-						return $asset['browser_download_url'];
-					}
+		$owner = $data['owner'];
+		$repo  = $data['repo'];
+
+		// Priority 1: Custom uploaded ZIP asset on the Release page (browser_download_url)
+		if ( is_array( $release ) && ! empty( $release['assets'] ) ) {
+			foreach ( $release['assets'] as $asset ) {
+				if ( ! empty( $asset['name'] ) && substr( $asset['name'], -4 ) === '.zip' && ! empty( $asset['browser_download_url'] ) ) {
+					return $asset['browser_download_url'];
 				}
 			}
+		}
 
-			// Priority 2: Public archive URL — does NOT require GitHub auth (zipball_url is intentionally avoided)
-			if ( ! empty( $release['tag_name'] ) ) {
-				return 'https://github.com/' . $data['owner'] . '/' . $data['repo'] . '/archive/refs/tags/' . $release['tag_name'] . '.zip';
+		// Priority 2: Tag from GitHub API response → archive ZIP (no auth needed)
+		if ( is_array( $release ) && ! empty( $release['tag_name'] ) ) {
+			return 'https://github.com/' . $owner . '/' . $repo . '/archive/refs/tags/' . $release['tag_name'] . '.zip';
+		}
+
+		// Priority 3: Follow /releases/latest redirect to get tag, then build archive URL
+		// This is the simplest direct approach: github.com/{owner}/{repo}/releases/latest → redirect → tag
+		$response = wp_remote_head(
+			'https://github.com/' . $owner . '/' . $repo . '/releases/latest',
+			array(
+				'redirection' => 0,
+				'timeout'     => 10,
+			)
+		);
+		if ( ! is_wp_error( $response ) ) {
+			$headers  = wp_remote_retrieve_headers( $response );
+			$location = ! empty( $headers['location'] ) ? $headers['location'] : '';
+			if ( preg_match( '#/releases/tag/(v?[0-9][0-9.]+)#i', $location, $m ) ) {
+				return 'https://github.com/' . $owner . '/' . $repo . '/archive/refs/tags/' . $m[1] . '.zip';
 			}
 		}
 
-		// 2. Direct Release Asset Fallback (Bypasses GitHub API 403 Rate Limits on Playground / Shared Hosts)
-		// Uses the installed version or the latest resolved version to construct possible tag URLs
-		$owner         = $data['owner'];
-		$repo          = $data['repo'];
-		$possible_tags = array( 'v1.0.0', '1.0.0' ); // last-resort generic tags
-
-		foreach ( $possible_tags as $tag ) {
-			$direct_asset = 'https://github.com/' . $owner . '/' . $repo . '/releases/download/' . $tag . '/' . $repo . '-' . $tag . '.zip';
-			$check        = wp_remote_head( $direct_asset, array( 'timeout' => 5 ) );
-			if ( ! is_wp_error( $check ) && 200 === wp_remote_retrieve_response_code( $check ) ) {
-				return $direct_asset;
-			}
-
-			$tag_archive   = 'https://github.com/' . $owner . '/' . $repo . '/archive/refs/tags/' . $tag . '.zip';
-			$check_archive = wp_remote_head( $tag_archive, array( 'timeout' => 5 ) );
-			if ( ! is_wp_error( $check_archive ) && in_array( wp_remote_retrieve_response_code( $check_archive ), array( 200, 301, 302 ), true ) ) {
-				return $tag_archive;
-			}
-		}
-
-		// Final Tag Release URL fallback constructing standard v1.0.0 tag
-		return 'https://github.com/' . $owner . '/' . $repo . '/archive/refs/tags/v1.0.0.zip';
+		return false;
 	}
 
 	/**
