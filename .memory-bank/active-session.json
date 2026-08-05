@@ -1,19 +1,18 @@
 {
   "schema_version": "1.1.0",
-  "session_id": "gnn-wpdash-init-001",
+  "session_id": "gnn-wpdash-session-002",
   "status": "ACTIVE",
   "mode": "Interactive",
   "preferred_language": "tr",
-  "timestamp": "2026-08-05T02:58:00+03:00",
+  "timestamp": "2026-08-05T03:54:00+03:00",
   "active_branch": "main",
-  "last_commit": null,
-  "git_history_available": false,
+  "last_commit": "cef64ba",
+  "git_history_available": true,
   "worktree_status": "clean",
   "current_sprint": {
-    "sprint_id": "v1.0.0-release",
+    "sprint_id": "v1.0.6-release",
     "active_tasks": [
-      "Repository Git Initialization",
-      "Language Translation String Verification"
+      "Self-update verification test (v1.0.5 → v1.0.6)"
     ]
   },
   "tracked_memory_areas": {
