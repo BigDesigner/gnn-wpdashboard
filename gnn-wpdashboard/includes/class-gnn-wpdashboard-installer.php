@@ -288,6 +288,17 @@ class GNN_WPDashboard_Installer {
 	}
 
 	/**
+	 * Delete all cached GitHub release transients for all tracked repos.
+	 * Called by the "Güncellemeleri Kontrol Et" button to force a live GitHub check.
+	 */
+	public function clear_release_cache() {
+		foreach ( $this->default_repos as $data ) {
+			$transient_key = 'gnn_wpdash_rel_' . md5( $data['owner'] . '_' . $data['repo'] );
+			delete_transient( $transient_key );
+		}
+	}
+
+	/**
 	 * Fetch release data from GitHub API.
 	 *
 	 * @param string $owner GitHub user.

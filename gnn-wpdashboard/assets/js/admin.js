@@ -11,12 +11,22 @@
 	$(document).ready(function() {
 		loadPlugins();
 
-		// Sync Button
+		// Sync Button — önce cache temizle, sonra canlı GitHub verisiyle yenile
 		$('#btn-sync-plugins, #btn-show-updates').on('click', function() {
 			const $icon = $('#sync-icon');
 			$icon.addClass('animate-spin');
-			loadPlugins(function() {
-				$icon.removeClass('animate-spin');
+			$.ajax({
+				url: GNNWPDashboard.ajax_url,
+				type: 'POST',
+				data: {
+					action: 'gnn_wpdashboard_clear_cache',
+					nonce: GNNWPDashboard.nonce
+				},
+				complete: function() {
+					loadPlugins(function() {
+						$icon.removeClass('animate-spin');
+					});
+				}
 			});
 		});
 

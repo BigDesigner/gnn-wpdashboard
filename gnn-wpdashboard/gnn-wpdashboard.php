@@ -103,6 +103,7 @@ class GNN_WPDashboard {
 		add_action( 'wp_ajax_gnn_wpdashboard_bulk_activate', array( $this, 'ajax_bulk_activate' ) );
 		add_action( 'wp_ajax_gnn_wpdashboard_bulk_deactivate', array( $this, 'ajax_bulk_deactivate' ) );
 		add_action( 'wp_ajax_gnn_wpdashboard_bulk_delete', array( $this, 'ajax_bulk_delete' ) );
+		add_action( 'wp_ajax_gnn_wpdashboard_clear_cache', array( $this, 'ajax_clear_cache' ) );
 	}
 
 	/**
@@ -194,6 +195,18 @@ class GNN_WPDashboard {
 
 		$plugins = $this->installer->get_plugins_list();
 		wp_send_json_success( $plugins );
+	}
+
+	/**
+	 * AJAX: Clear GitHub release transient cache for all tracked repos.
+	 */
+	public function ajax_clear_cache() {
+		check_ajax_referer( 'gnn_wpdashboard_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
+		}
+		$this->installer->clear_release_cache();
+		wp_send_json_success( 'cache_cleared' );
 	}
 
 	/**
