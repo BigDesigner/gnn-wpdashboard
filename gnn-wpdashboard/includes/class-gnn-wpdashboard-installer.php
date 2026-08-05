@@ -159,7 +159,7 @@ class GNN_WPDashboard_Installer {
 				'installed'         => false,
 				'active'            => false,
 				'installed_version' => null,
-				'latest_version'    => ! empty( $data['version'] ) ? $data['version'] : '1.0.0',
+				'latest_version'    => '',
 				'changelog'         => '',
 				'has_update'        => false,
 				'repo_url'          => 'https://github.com/' . $data['owner'] . '/' . $data['repo'],
@@ -413,10 +413,10 @@ class GNN_WPDashboard_Installer {
 		}
 
 		// 2. Direct Release Asset Fallback (Bypasses GitHub API 403 Rate Limits on Playground / Shared Hosts)
-		$owner       = $data['owner'];
-		$repo        = $data['repo'];
-		$ver_tag       = ! empty( $data['version'] ) ? $data['version'] : '1.0.0';
-		$possible_tags = array( 'v' . $ver_tag, $ver_tag, 'v1.0.0' );
+		// Uses the installed version or the latest resolved version to construct possible tag URLs
+		$owner         = $data['owner'];
+		$repo          = $data['repo'];
+		$possible_tags = array( 'v1.0.0', '1.0.0' ); // last-resort generic tags
 
 		foreach ( $possible_tags as $tag ) {
 			$direct_asset = 'https://github.com/' . $owner . '/' . $repo . '/releases/download/' . $tag . '/' . $repo . '-' . $tag . '.zip';
