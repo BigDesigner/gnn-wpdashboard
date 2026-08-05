@@ -62,7 +62,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<h2 class="text-xs font-bold tracking-wider text-outline mb-1"><?php esc_html_e( 'DURUM FİLTRESİ', 'gnn-wpdashboard' ); ?></h2>
 					
 					<button data-status="all" class="status-tab active-tab flex items-center justify-between bg-secondary-container text-on-secondary-container rounded-lg px-3 py-2 text-sm font-semibold transition-all border-none cursor-pointer">
-						<span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">apps</span> <?php esc_html_e( 'Tüm Eklentiler', 'gnn-wpdashboard' ); ?></span>
+						<span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">apps</span> <?php esc_html_e( 'Tümü', 'gnn-wpdashboard' ); ?></span>
 						<span id="count-all" class="bg-surface-container-lowest text-on-surface text-xs px-2 py-0.5 rounded-full font-bold">0</span>
 					</button>
 
@@ -79,6 +79,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<button data-status="inactive" class="status-tab flex items-center justify-between text-on-surface-variant hover:bg-surface-container-high rounded-lg px-3 py-2 text-sm font-medium transition-all border-none cursor-pointer">
 						<span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg text-gray-500">pause_circle</span> <?php esc_html_e( 'Pasif', 'gnn-wpdashboard' ); ?></span>
 						<span id="count-inactive" class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+					</button>
+
+					<button data-status="uninstalled" class="status-tab flex items-center justify-between text-on-surface-variant hover:bg-surface-container-high rounded-lg px-3 py-2 text-sm font-medium transition-all border-none cursor-pointer">
+						<span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg text-blue-500">download</span> <?php esc_html_e( 'Kuruluma Hazır', 'gnn-wpdashboard' ); ?></span>
+						<span id="count-uninstalled" class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
 					</button>
 				</div>
 

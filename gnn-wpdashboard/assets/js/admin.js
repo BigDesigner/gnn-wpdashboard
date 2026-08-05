@@ -155,6 +155,7 @@
 		$('#count-active').text(active);
 		$('#count-updates').text(updates);
 		$('#count-inactive').text(inactive);
+		$('#count-uninstalled').text(uninstalled);
 
 		// Dynamic Bulk Action Buttons Visibility
 		// 1. Tümünü Kur: Visible ONLY if there are uninstalled plugins/themes
@@ -236,6 +237,7 @@
 			if (activeStatusFilter === 'active' && !item.active) return false;
 			if (activeStatusFilter === 'updates' && !item.has_update) return false;
 			if (activeStatusFilter === 'inactive' && (!item.installed || item.active)) return false;
+			if (activeStatusFilter === 'uninstalled' && item.installed) return false;
 
 			// Category filter
 			if (activeCategoryFilter !== 'all' && item.category !== activeCategoryFilter) return false;

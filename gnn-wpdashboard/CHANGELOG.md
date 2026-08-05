@@ -4,6 +4,29 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.0.9] - 2026-08-05
+
+### Added
+- Durum filtresi paneline "Kuruluma Hazır" sekmesi eklendi (kurulmamış eklenti/temaları filtreler)
+
+### Changed
+- "Tüm Eklentiler" durum filtresi etiketi "Tümü" olarak güncellendi (hem eklenti hem tema gösterdiği için)
+
+---
+
+## [1.0.8] - 2026-08-05
+
+### Fixed
+- `find_installed_plugin_file()`: gevşek klasör-öneki eşleşmesi kaldırıldı, yanlış eklenti eşleşme riski giderildi
+- `resolve_release_zip_url()`: diğer eklentilere ait rastgele sabit sürüm etiketleri fallback listesinden temizlendi
+- `install_plugin()`: upgrader `null` sonuç dönerse artık hatalı "başarılı" sayılmıyor
+- Bulk deactivate/delete kendini koruma kontrolü tam klasör eşleşmesiyle sağlamlaştırıldı
+- Büyük harfli GitHub release etiketleri (`V1.2.0`) artık doğru algılanıyor
+- `check_update()`: `$transient->response` güvenli şekilde ilklendiriliyor
+- Çoklu güncelleme banner bildirimi artık toplam sayıyı gösteriyor
+
+---
+
 ## [1.0.6] - 2026-08-05
 
 ### Added
