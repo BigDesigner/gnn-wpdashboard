@@ -4,6 +4,13 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.1.2] - 2026-08-05
+
+### Changed
+- "Kuruluma Hazır" durum filtresi etiketi "Hazır" olarak kısaltıldı
+
+---
+
 ## [1.1.1] - 2026-08-05
 
 ### Fixed

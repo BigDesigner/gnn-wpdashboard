@@ -67,7 +67,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</button>
 
 					<button data-status="uninstalled" class="status-tab flex items-center justify-between text-on-surface-variant hover:bg-surface-container-high rounded-lg px-3 py-2 text-sm font-medium transition-all border-none cursor-pointer">
-						<span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg text-blue-500">download</span> <?php esc_html_e( 'Kuruluma Hazır', 'gnn-wpdashboard' ); ?></span>
+						<span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg text-blue-500">download</span> <?php esc_html_e( 'Hazır', 'gnn-wpdashboard' ); ?></span>
 						<span id="count-uninstalled" class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
 					</button>
 
