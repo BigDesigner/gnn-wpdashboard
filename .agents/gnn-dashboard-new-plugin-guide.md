@@ -84,16 +84,30 @@ Mevcut 10 kartın kullandığı renk/desen tablosuna bakarak **tekrar etmeyen** 
 
 ## 🔄 Adım 3 — ZIP İndirme Mekanizması (Bilgi)
 
-Kurulum ve güncelleme sırasında ZIP URL şu öncelik sırasıyla çözülür:
+Kaynak her zaman şudur: **`https://github.com/BigDesigner/{repo}/releases/latest` sayfasındaki `.zip` paketi.**
 
-1. **Release'e yüklenmiş özel ZIP asset** (`browser_download_url`) — en güvenilir
-2. **`github.com/{owner}/{repo}/archive/refs/tags/{tag}.zip`** — public, auth gerektirmez ✅
-3. ~~`zipball_url`~~ — **KULLANILMAZ**, GitHub authentication gerektirir ❌
+Çözüm sırası:
 
-GitHub Tag Release'e özel bir ZIP asset yüklemek **önerilir** ancak zorunlu değildir.
-Source code archive (otomatik oluşturulan) da çalışır.
+1. **Release'e yüklenmiş ZIP asset** — GitHub API yanıt veriyorsa `browser_download_url`
+2. **API'siz asset keşfi** — `releases/latest` yönlendirmesinden gerçek tag alınır, ardından
+   `releases/expanded_assets/{tag}` sayfasından **asset dosya adı okunur**
+3. **`archive/refs/tags/{tag}.zip`** — yalnızca son çare
+4. ~~`zipball_url`~~ — **KULLANILMAZ**, GitHub authentication gerektirir ❌
 
-Çıkarılan klasör adı (`gnn-eklentiadi-1.0.3` veya `BigDesigner-gnn-eklentiadi-abc1234`) `fix_source_folder_name()` filtresi tarafından otomatik olarak `gnn-eklentiadi` haline getirilir.
+> **ZORUNLU:** Her release'e ZIP asset yüklenmelidir. Opsiyonel değildir.
+> Bu depolarda eklenti **kökte değil, alt klasörde** durur (`gnn-eklentiadi/gnn-eklentiadi.php`).
+> Bu yüzden source code archive tek başına **geçerli bir eklenti paketi değildir** —
+> WordPress kökte `Plugin Name:` başlığı bulamaz ve **"Paket kurulamadı."** hatası verir.
+> Release ZIP'i workflow (`.github/workflows/release.yml`) tarafından otomatik eklenir.
+
+> **API'ye güvenme:** GitHub API paylaşımlı hosting'de saatlik limite (403) takılır.
+> Bu yüzden 2. adım hiçbir API çağrısı yapmaz; kurulum rate limit altında da çalışmalıdır.
+
+> **Asset adını tahmin etme:** İsimlendirme tutarsızdır
+> (`gnn-lightbox-v1.1.0.zip` ama `gnn-terms-popup-1.3.16.zip`).
+> Ad her zaman release sayfasından okunur.
+
+Çıkarılan klasör adı (`gnn-eklentiadi-1.0.3` veya `BigDesigner-gnn-eklentiadi-abc1234`) `fix_source_folder_name()` filtresi tarafından `gnn-eklentiadi` haline getirilir. Arşiv indirildiğinde `descend_to_package_root()` gerçek eklenti klasörünü bulur.
 
 ---
 
@@ -135,7 +149,10 @@ GitHub'da yeni bir sürüm yayınlarken:
 1. GitHub → **Releases** → **Draft a new release**
 2. **Tag:** `v1.0.0` formatında (örn: `v1.2.3`)
 3. **Target:** `main`
-4. ZIP asset olarak `gnn-eklentiadi.zip` yüklemek **önerilir** (opsiyonel)
-5. **Publish release**
+4. **ZIP asset ZORUNLUDUR.** Asset'siz release kurulamaz (bkz. Adım 3).
+   Workflow kullanılıyorsa paket otomatik eklenir; elle release alınıyorsa ZIP mutlaka yüklenmelidir.
+5. **Release açıklaması yazılmalıdır** — panel "Detaylar" ekranındaki sürüm notu
+   bu alandan okunur. `CHANGELOG.md` dosyası bu amaçla **kullanılmaz**.
+6. **Publish release**
 
 > Panel, "Güncellemeleri Kontrol Et" butonuna basıldığında tüm transient cache'leri temizler ve GitHub API'den canlı sürüm bilgisini çeker.
