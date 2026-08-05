@@ -1,0 +1,359 @@
+/**
+ * GNN WPDashboard Admin Stylesheet
+ * Isolated Scoped CSS for WordPress Admin Compatibility
+ */
+
+/* Scope Resets to prevent WP Admin CSS pollution */
+.gnn-wpdashboard-wrap {
+	font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+	color: #151d21 !important;
+	width: 100% !important;
+	max-width: 1400px !important;
+	margin: 20px 0 40px 0 !important;
+	padding-right: 20px !important;
+}
+
+.gnn-wpdashboard-wrap * {
+	box-sizing: border-box !important;
+}
+
+/* Material Symbols Font Alignment */
+.gnn-wpdashboard-wrap .material-symbols-outlined {
+	font-family: 'Material Symbols Outlined' !important;
+	font-weight: normal;
+	font-style: normal;
+	font-size: 24px;
+	line-height: 1;
+	letter-spacing: normal;
+	text-transform: none;
+	display: inline-block;
+	white-space: nowrap;
+	word-wrap: normal;
+	direction: ltr;
+	-webkit-font-smoothing: antialiased;
+	font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.gnn-wpdashboard-wrap .material-symbols-outlined.filled {
+	font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Search Bar Icon Fix */
+.gnn-wpdashboard-wrap .search-box-container {
+	position: relative !important;
+	display: flex !important;
+	align-items: center !important;
+}
+
+.gnn-wpdashboard-wrap .search-icon {
+	position: absolute !important;
+	left: 12px !important;
+	top: 50% !important;
+	transform: translateY(-50%) !important;
+	color: #6f787f !important;
+	pointer-events: none !important;
+}
+
+.gnn-wpdashboard-wrap #search-input {
+	padding-left: 40px !important;
+	height: 40px !important;
+	line-height: 40px !important;
+	margin: 0 !important;
+}
+
+/* Main Layout Responsiveness */
+.gnn-wpdashboard-main-layout {
+	display: flex !important;
+	flex-direction: row !important;
+	gap: 24px !important;
+	width: 100% !important;
+	align-items: flex-start !important;
+}
+
+.gnn-wpdashboard-sidebar {
+	width: 220px !important;
+	min-width: 220px !important;
+	flex-shrink: 0 !important;
+}
+
+.gnn-wpdashboard-content {
+	flex: 1 1 0% !important;
+	min-width: 0 !important;
+	width: 100% !important;
+}
+
+/* Responsive Grid Layout Fix for WordPress Admin */
+#plugin-grid-container {
+	display: grid !important;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+	gap: 24px !important;
+	width: 100% !important;
+}
+
+/* Card Improvements */
+.gnn-wpdashboard-wrap .plugin-card {
+	background-color: #ffffff !important;
+	border-radius: 16px !important;
+	border: 1px solid #bec8cf !important;
+	overflow: hidden !important;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+	transition: all 0.25s ease-in-out !important;
+	display: flex !important;
+	flex-direction: column !important;
+	min-height: 320px !important;
+	width: 100% !important;
+	margin: 0 !important;
+}
+
+.gnn-wpdashboard-wrap .plugin-card:hover {
+	transform: translateY(-4px) !important;
+	box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Card Icon Badge - 100% Solid White Fix */
+.gnn-wpdashboard-wrap .gnn-card-icon-badge {
+	width: 44px !important;
+	height: 44px !important;
+	background-color: #ffffff !important;
+	border-radius: 12px !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	position: absolute !important;
+	top: -22px !important;
+	left: 20px !important;
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+	border: 1px solid #e2e8f0 !important;
+	z-index: 10 !important;
+}
+
+.gnn-wpdashboard-wrap .gnn-card-icon-badge .material-symbols-outlined {
+	color: #0f172a !important;
+	font-size: 22px !important;
+}
+
+/* Unique Line & Geometric Pattern Banners for Each Card */
+
+/* 1. GNN Lightbox - Diagonal Stripes Pattern */
+.plugin-banner-lightbox {
+	background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.08) 0px, rgba(255, 255, 255, 0.08) 8px, transparent 8px, transparent 16px), linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
+}
+
+/* 2. GNN Terms Popup - Dot Matrix Shield Pattern */
+.plugin-banner-terms {
+	background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 1.5px, transparent 1.5px) 0 0/14px 14px, linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+}
+
+/* 3. GNN Filehub - Architectural Grid / Blueprint Pattern */
+.plugin-banner-filehub {
+	background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px) 0 0/18px 18px, linear-gradient(0deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px) 0 0/18px 18px, linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+}
+
+/* 4. GNN Sitemap - Isometric Crosshatch Circuit Pattern */
+.plugin-banner-sitemap {
+	background: repeating-linear-gradient(60deg, rgba(255, 255, 255, 0.09) 0px, rgba(255, 255, 255, 0.09) 1px, transparent 1px, transparent 14px), repeating-linear-gradient(-60deg, rgba(255, 255, 255, 0.09) 0px, rgba(255, 255, 255, 0.09) 1px, transparent 1px, transparent 14px), linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+}
+
+/* 5. GNN IP Info - Concentric Wave Rings Pattern */
+.plugin-banner-ipinfo {
+	background: repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.12) 0px, rgba(255, 255, 255, 0.12) 2px, transparent 2px, transparent 12px), linear-gradient(135deg, #334155 0%, #0f172a 100%) !important;
+}
+
+/* 6. GNN Whois - Topographic Soft Waves Pattern */
+.plugin-banner-whois {
+	background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0px, rgba(255, 255, 255, 0.14) 4px, transparent 4px, transparent 20px), linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+}
+
+/* 7. GNN Shortner - Chevron Zig-Zag Pattern */
+.plugin-banner-shortner {
+	background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.12) 0px, rgba(255, 255, 255, 0.12) 2px, transparent 2px, transparent 10px), repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.12) 0px, rgba(255, 255, 255, 0.12) 2px, transparent 2px, transparent 10px), linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+}
+
+/* 8. GNN SMTP Mail - Mail Envelope Diagonal Hatch Pattern */
+.plugin-banner-smtpmail {
+	background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.12) 0px, rgba(255, 255, 255, 0.12) 3px, transparent 3px, transparent 15px), linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+}
+
+/* 9. GNN WPTheme - Isometric Diamond Mesh Pattern */
+.plugin-banner-wptheme {
+	background: repeating-linear-gradient(30deg, rgba(255, 255, 255, 0.1) 0px, rgba(255, 255, 255, 0.1) 1px, transparent 1px, transparent 16px), repeating-linear-gradient(150deg, rgba(255, 255, 255, 0.1) 0px, rgba(255, 255, 255, 0.1) 1px, transparent 1px, transparent 16px), linear-gradient(135deg, #4f46e5 0%, #3730a3 100%) !important;
+}
+
+/* 10. GNN Dashboard - Radial Dot Grid Pattern */
+.plugin-banner-wpdashboard {
+	background: radial-gradient(rgba(255, 255, 255, 0.25) 1.5px, transparent 1.5px) 0 0 / 14px 14px, linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+}
+
+/* Version Badge Prominent Pill Styling */
+.gnn-wpdashboard-wrap .version-badge-pill {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 4px !important;
+	padding: 4px 10px !important;
+	border-radius: 9999px !important;
+	font-size: 11px !important;
+	font-weight: 700 !important;
+	letter-spacing: 0.03em !important;
+	color: #ffffff !important;
+	background: rgba(15, 23, 42, 0.75) !important;
+	backdrop-filter: blur(8px) !important;
+	-webkit-backdrop-filter: blur(8px) !important;
+	border: 1px solid rgba(255, 255, 255, 0.3) !important;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+	transition: all 0.2s ease !important;
+}
+
+.gnn-wpdashboard-wrap .version-badge-pill.version-update-glow {
+	background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+	border-color: rgba(251, 191, 36, 0.7) !important;
+	box-shadow: 0 0 14px rgba(245, 158, 11, 0.6) !important;
+}
+
+.gnn-wpdashboard-wrap .version-badge-pill:hover {
+	transform: scale(1.05) !important;
+}
+
+/* WP Admin Overrides for Headings & Buttons */
+.gnn-wpdashboard-wrap h1,
+.gnn-wpdashboard-wrap h2,
+.gnn-wpdashboard-wrap h3,
+.gnn-wpdashboard-wrap h4 {
+	margin: 0 !important;
+	padding: 0 !important;
+	font-family: 'Inter', sans-serif !important;
+	word-break: normal !important;
+}
+
+.gnn-wpdashboard-wrap p {
+	margin: 0 !important;
+	padding: 0 !important;
+	font-family: 'Inter', sans-serif !important;
+	word-break: normal !important;
+}
+
+.gnn-wpdashboard-wrap button {
+	font-family: 'Inter', sans-serif !important;
+	white-space: nowrap !important;
+}
+
+/* Modal Scoped Styles */
+#details-modal {
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	bottom: 0 !important;
+	width: 100vw !important;
+	height: 100vh !important;
+	background-color: rgba(15, 23, 42, 0.75) !important;
+	backdrop-filter: blur(8px) !important;
+	-webkit-backdrop-filter: blur(8px) !important;
+	z-index: 999999 !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	padding: 20px !important;
+}
+
+#details-modal.hidden {
+	display: none !important;
+}
+
+#details-modal .gnn-modal-content {
+	background-color: #ffffff !important;
+	color: #0f172a !important;
+	border-radius: 20px !important;
+	max-width: 580px !important;
+	width: 100% !important;
+	padding: 24px !important;
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35) !important;
+	border: 1px solid #e2e8f0 !important;
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 16px !important;
+	max-height: 85vh !important;
+	overflow-y: auto !important;
+	position: relative !important;
+}
+
+#details-modal .gnn-modal-header {
+	display: flex !important;
+	justify-content: space-between !important;
+	align-items: flex-start !important;
+	border-bottom: 1px solid #e2e8f0 !important;
+	padding-bottom: 16px !important;
+}
+
+#details-modal .gnn-modal-icon-badge {
+	width: 48px !important;
+	height: 48px !important;
+	background-color: #0f172a !important;
+	border-radius: 14px !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25) !important;
+	flex-shrink: 0 !important;
+}
+
+#details-modal .gnn-modal-icon-badge #modal-icon {
+	color: #ffffff !important;
+	font-size: 24px !important;
+	display: inline-block !important;
+}
+
+#details-modal .gnn-modal-title {
+	font-size: 20px !important;
+	font-weight: 700 !important;
+	color: #0f172a !important;
+	margin: 0 !important;
+}
+
+#details-modal .gnn-modal-sub {
+	font-size: 12px !important;
+	color: #64748b !important;
+	font-weight: 500 !important;
+	margin-top: 4px !important;
+}
+
+#details-modal .gnn-modal-body {
+	font-size: 14px !important;
+	color: #334155 !important;
+	line-height: 1.6 !important;
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 12px !important;
+}
+
+#details-modal .gnn-modal-changelog-box {
+	background-color: #f8fafc !important;
+	padding: 16px !important;
+	border-radius: 12px !important;
+	border: 1px solid #e2e8f0 !important;
+	font-size: 13px !important;
+	color: #334155 !important;
+}
+
+#details-modal .gnn-modal-footer {
+	display: flex !important;
+	justify-content: space-between !important;
+	align-items: center !important;
+	border-top: 1px solid #e2e8f0 !important;
+	padding-top: 16px !important;
+}
+
+#details-modal .gnn-modal-close-btn {
+	background-color: #0f172a !important;
+	color: #ffffff !important;
+	padding: 8px 22px !important;
+	border-radius: 10px !important;
+	font-size: 13px !important;
+	font-weight: 600 !important;
+	border: none !important;
+	cursor: pointer !important;
+	transition: background-color 0.2s ease !important;
+}
+
+#details-modal .gnn-modal-close-btn:hover {
+	background-color: #1e293b !important;
+}
