@@ -4,6 +4,13 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.1.4] - 2026-08-05
+
+### Changed
+- Canlı test sürümü — 1.1.3'teki kurulum ve dil dosyası düzeltmelerini yayına taşır
+
+---
+
 ## [1.1.3] - 2026-08-05
 
 ### Fixed

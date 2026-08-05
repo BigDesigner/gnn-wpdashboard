@@ -3,7 +3,7 @@
  * Plugin Name: GNN WPDashboard
  * Plugin URI:  https://github.com/BigDesigner/gnn-wpdashboard
  * Description: Eklentilerinizi tek bir panelden kurmanıza, güncellemenize ve yönetmenize olanak tanır.
- * Version:     1.1.3
+ * Version:     1.1.4
  * Author:      BigDesigner
  * Author URI:  https://github.com/BigDesigner
  * Text Domain: gnn-wpdashboard
