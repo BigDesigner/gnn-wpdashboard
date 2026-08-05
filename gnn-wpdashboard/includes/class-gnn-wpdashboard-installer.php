@@ -264,8 +264,18 @@ class GNN_WPDashboard_Installer {
 		$slug            = $this->current_install_slug;
 		$source_dir_name = trim( basename( $source ), '/' );
 
-		// If the extracted zip folder itself is already clean (e.g. 'gnn') without GitHub tag/branch suffixes (-1.5.1, -main, etc.)
-		if ( ! empty( $source_dir_name ) && ! preg_match( '/-[0-9a-f]{7,}$|-[0-9]+\.[0-9]+|-main|-master/i', $source_dir_name ) ) {
+		// Strip GitHub archive suffixes: -1.5.1, -v1.5.1, -main, -master, -abc1234 (hash)
+		// e.g. gnn-wpdashboard-1.0.3 → gnn-wpdashboard
+		// e.g. BigDesigner-gnn-wpdashboard-a1b2c3d → gnn-wpdashboard
+		$cleaned = preg_replace( '/(-v?[0-9]+\.[0-9]+(\.[0-9]+)*|-[0-9a-f]{7,}|-main|-master)$/i', '', $source_dir_name );
+		// If cleaning produces the expected slug, use it; otherwise fall back to slug
+		if ( ! empty( $cleaned ) && $cleaned !== $source_dir_name ) {
+			// Accept if cleaned result ends with or equals slug
+			if ( $cleaned === $slug || false !== strpos( $cleaned, $slug ) ) {
+				$slug = $slug; // keep original slug, just rename the folder
+			}
+		} elseif ( ! empty( $source_dir_name ) && ! preg_match( '/-[0-9a-f]{7,}$|-v?[0-9]+\.[0-9]+|-main|-master/i', $source_dir_name ) ) {
+			// Folder already clean (e.g. 'gnn') - preserve as-is
 			$slug                       = $source_dir_name;
 			$this->current_install_slug = $slug;
 		}
@@ -387,6 +397,7 @@ class GNN_WPDashboard_Installer {
 	private function resolve_release_zip_url( $data, $release ) {
 		// 1. Try resolving from GitHub API Release response if available
 		if ( is_array( $release ) ) {
+			// Prefer direct release asset ZIP (no auth required)
 			if ( ! empty( $release['assets'] ) && is_array( $release['assets'] ) ) {
 				foreach ( $release['assets'] as $asset ) {
 					if ( ! empty( $asset['name'] ) && substr( $asset['name'], -4 ) === '.zip' && ! empty( $asset['browser_download_url'] ) ) {
@@ -395,12 +406,14 @@ class GNN_WPDashboard_Installer {
 				}
 			}
 
-			if ( ! empty( $release['zipball_url'] ) ) {
-				return $release['zipball_url'];
-			}
-
+			// Prefer public archive URL over zipball_url (zipball requires GitHub auth on some hosts)
 			if ( ! empty( $release['tag_name'] ) ) {
 				return 'https://github.com/' . $data['owner'] . '/' . $data['repo'] . '/archive/refs/tags/' . $release['tag_name'] . '.zip';
+			}
+
+			// zipball_url last resort
+			if ( ! empty( $release['zipball_url'] ) ) {
+				return $release['zipball_url'];
 			}
 		}
 
