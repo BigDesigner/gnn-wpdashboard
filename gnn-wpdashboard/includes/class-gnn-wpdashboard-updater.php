@@ -72,6 +72,9 @@ class GNN_WPDashboard_Updater {
 			check_admin_referer( 'gnn_wpdashboard_manual_update' );
 			delete_site_transient( 'update_plugins' );
 			delete_transient( 'gnn_wpdashboard_github_release' );
+			if ( function_exists( 'gnn_wpdashboard' ) && isset( gnn_wpdashboard()->installer ) ) {
+				gnn_wpdashboard()->installer->clear_release_cache();
+			}
 			wp_safe_redirect( admin_url( 'plugins.php?deactivate-multi=true' ) );
 			exit;
 		}
@@ -131,7 +134,7 @@ class GNN_WPDashboard_Updater {
 		}
 
 		$release = $this->get_latest_release();
-		if ( ! $release ) {
+		if ( ! $release || empty( $release['tag_name'] ) ) {
 			return $result;
 		}
 
@@ -154,13 +157,13 @@ class GNN_WPDashboard_Updater {
 	}
 
 	/**
-	 * Fetch latest release from GitHub API with 12-hour transient cache.
+	 * Fetch latest release from GitHub API with 12-hour transient cache and redirect fallback.
 	 *
 	 * @return array|bool Release data or false.
 	 */
 	private function get_latest_release() {
 		$cached = get_transient( 'gnn_wpdashboard_github_release' );
-		if ( false !== $cached ) {
+		if ( false !== $cached && is_array( $cached ) ) {
 			return $cached;
 		}
 
@@ -176,17 +179,55 @@ class GNN_WPDashboard_Updater {
 			)
 		);
 
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return false;
+		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( is_array( $data ) && ! empty( $data['tag_name'] ) ) {
+				set_transient( 'gnn_wpdashboard_github_release', $data, 12 * HOUR_IN_SECONDS );
+				return $data;
+			}
 		}
 
-		$data = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( ! is_array( $data ) ) {
-			return false;
+		// Fallback to /releases/latest HTTP 302 Location header when GitHub API returns 403 Rate Limit.
+		$fallback_tag = $this->fetch_latest_tag_fallback();
+		if ( ! empty( $fallback_tag ) ) {
+			$fallback_data = array(
+				'tag_name' => $fallback_tag,
+				'assets'   => array(),
+				'body'     => '',
+			);
+			set_transient( 'gnn_wpdashboard_github_release', $fallback_data, HOUR_IN_SECONDS );
+			return $fallback_data;
 		}
 
-		set_transient( 'gnn_wpdashboard_github_release', $data, 12 * HOUR_IN_SECONDS );
-		return $data;
+		return false;
+	}
+
+	/**
+	 * Resolve the latest release tag via HTTP 302 redirect without using the GitHub API.
+	 *
+	 * @return string Tag name or empty string.
+	 */
+	private function fetch_latest_tag_fallback() {
+		$response = wp_remote_head(
+			'https://github.com/' . $this->owner . '/' . $this->repo . '/releases/latest',
+			array(
+				'redirection' => 0,
+				'timeout'     => 10,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return '';
+		}
+
+		$headers  = wp_remote_retrieve_headers( $response );
+		$location = ! empty( $headers['location'] ) ? $headers['location'] : '';
+
+		if ( preg_match( '#/releases/tag/([^/?\#\s"\']+)#i', $location, $m ) ) {
+			return urldecode( $m[1] );
+		}
+
+		return '';
 	}
 
 	/**

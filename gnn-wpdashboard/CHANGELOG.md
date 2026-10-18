@@ -4,6 +4,21 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.1.5] - 2026-10-18
+
+### Fixed
+- `WP_PLUGIN_DIR` silinme riski giderildi: `install_plugin()` içindeki eski klasör temizliğine `'.' !== $rel_dir` ve `validate_file()` koruması eklendi; `find_installed_plugin_file()` iki aşamalı eşleştirmeye geçirildi
+- "Tümünü Etkinleştir" (`bulk_activate_all`) işleminin pasif temayı etkinleştirerek sitenin aktif temasını değiştirmesi engellendi
+- `GNN_WPDashboard_Updater` içine GitHub API 403 (Rate Limit) durumunda çalışan `/releases/latest` 302 redirect tag fallback'i eklendi
+- Rate limit (403) durumunda çözülen fallback sürümleri 1 saatliğine transient önbelleğe alınarak her sayfa açılışında 20+ canlı HTTP isteği atılması önlendi
+- `Installer` ve `Updater` önbellekleri (`gnn_wpdash_rel_*`, `gnn_wpdashboard_github_release`, `update_plugins`) birbirini temizleyecek şekilde senkronize edildi
+- Yerel toplu işlemlerin (`bulk_activate_all`, `bulk_deactivate_all`, `bulk_delete_all`) gereksiz yere GitHub sorgusu yapması engellendi ve `WP_Error` dönüşleri AJAX yanıtına bağlandı
+- `activate_plugin`, `deactivate_plugin` ve `delete_plugin` metodlarına `$default_repos` beyaz liste kontrolü, `validate_file()` dizin geçişi koruması ve `gnn-wpdashboard` sistem paneli silinme/devre dışı bırakılma engeli eklendi
+- Tema algılamadaki aşırı geniş `strpos(..., 'gnn')` kontrolleri kaldırılarak yalnızca hedef tema eşleşmesi bırakıldı
+- Yönetim panelinde (`admin.js`) yalnızca sistem paneli kuruluyken "Tümünü Devre Dışı Bırak" ve "Tümünü Sil" butonlarının görünür kalması düzeltildi, `escapeHtml()` ile DOM XSS koruması ve eksik AJAX `error:` blokları eklendi
+
+---
+
 ## [1.1.4] - 2026-08-05
 
 ### Changed

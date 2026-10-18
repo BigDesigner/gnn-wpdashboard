@@ -3,7 +3,7 @@
  * Plugin Name: GNN WPDashboard
  * Plugin URI:  https://github.com/BigDesigner/gnn-wpdashboard
  * Description: Eklentilerinizi tek bir panelden kurmanıza, güncellemenize ve yönetmenize olanak tanır.
- * Version:     1.1.4
+ * Version:     1.1.5
  * Author:      BigDesigner
  * Author URI:  https://github.com/BigDesigner
  * Text Domain: gnn-wpdashboard
@@ -244,6 +244,9 @@ class GNN_WPDashboard {
 
 		$file = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
 		$type = isset( $_POST['type'] ) ? sanitize_text_field( wp_unslash( $_POST['type'] ) ) : 'plugin';
+		if ( ! in_array( $type, array( 'plugin', 'theme' ), true ) ) {
+			$type = 'plugin';
+		}
 		if ( empty( $file ) ) {
 			wp_send_json_error( __( 'Dosya veya slug belirtilmedi.', 'gnn-wpdashboard' ) );
 		}
@@ -291,6 +294,9 @@ class GNN_WPDashboard {
 
 		$file = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
 		$type = isset( $_POST['type'] ) ? sanitize_text_field( wp_unslash( $_POST['type'] ) ) : 'plugin';
+		if ( ! in_array( $type, array( 'plugin', 'theme' ), true ) ) {
+			$type = 'plugin';
+		}
 		if ( empty( $file ) ) {
 			wp_send_json_error( __( 'Dosya veya slug belirtilmedi.', 'gnn-wpdashboard' ) );
 		}
@@ -312,7 +318,10 @@ class GNN_WPDashboard {
 			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
 		}
 
-		$this->installer->bulk_install_all();
+		$result = $this->installer->bulk_install_all();
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( $result->get_error_message() );
+		}
 		wp_send_json_success( __( 'Tüm ögeler kuruldu.', 'gnn-wpdashboard' ) );
 	}
 
@@ -325,7 +334,10 @@ class GNN_WPDashboard {
 			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
 		}
 
-		$this->installer->bulk_activate_all();
+		$result = $this->installer->bulk_activate_all();
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( $result->get_error_message() );
+		}
 		wp_send_json_success( __( 'Tüm ögeler etkinleştirildi.', 'gnn-wpdashboard' ) );
 	}
 
@@ -338,7 +350,10 @@ class GNN_WPDashboard {
 			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
 		}
 
-		$this->installer->bulk_deactivate_all();
+		$result = $this->installer->bulk_deactivate_all();
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( $result->get_error_message() );
+		}
 		wp_send_json_success( __( 'Tüm eklentiler devre dışı bırakıldı.', 'gnn-wpdashboard' ) );
 	}
 
@@ -351,7 +366,10 @@ class GNN_WPDashboard {
 			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
 		}
 
-		$this->installer->bulk_delete_all();
+		$result = $this->installer->bulk_delete_all();
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( $result->get_error_message() );
+		}
 		wp_send_json_success( __( 'Tüm eklentiler ve temalar silindi.', 'gnn-wpdashboard' ) );
 	}
 }

@@ -1,5 +1,18 @@
 # Verified Worklog & Audit History
 
+## Session: Logic & Security Hardening — 2026-10-18
+
+### Comprehensive Audit & Bug Fixes
+- **Stale Folder Deletion Guard (`install_plugin`):** Added strict `$rel_dir !== '.'` and `0 === validate_file( $rel_dir )` checks before `force_remove_directory()` to prevent accidental deletion of `WP_PLUGIN_DIR` if a root-level plugin file is matched, while adding two-pass `basename( $file ) === $slug . '.php'` matching in `find_installed_plugin_file()`.
+- **Rate-Limit Fallback Caching (`Installer` & `Updater`):** Both `GNN_WPDashboard_Installer::fetch_github_release()` and `GNN_WPDashboard_Updater::get_latest_release()` now resolve the latest tag via `/releases/latest` HTTP 302 redirect when GitHub API returns 403 and cache the result for 1 hour (`HOUR_IN_SECONDS`), preventing 20+ live HTTP requests per page load and making `scrape_release_asset_url()` reachable under rate limits.
+- **Transient Cache Synchronization:** `clear_release_cache()` and `handle_manual_check()` now clear both `gnn_wpdash_rel_*` and `gnn_wpdashboard_github_release` transients plus `update_plugins` site transient.
+- **Bulk Operations Hardening (`bulk_*`):** Local bulk operations (`bulk_activate_all`, `bulk_deactivate_all`, `bulk_delete_all`) now use `get_plugins_list( false )` to skip remote GitHub requests, exclude themes from `bulk_activate_all()` so the active site theme is never switched unintentionally, and propagate `WP_Error` instances back to AJAX responses.
+- **Target Allowlist & Self-Protection (`is_managed_item`, `is_self_plugin`):** Enforced server-side `validate_file()` path traversal protection, GNN repository allowlist verification, and self-deactivation/deletion blocking in `activate_plugin()`, `deactivate_plugin()`, and `delete_plugin()`.
+- **Frontend Security & UX (`admin.js`):** Added `escapeHtml()` to prevent DOM XSS in card templates, excluded `gnn-wpdashboard` and active themes from bulk button visibility counters, handled empty version strings in card badges and details modal, and added `error:` callbacks to all AJAX handlers.
+- **Translations & Guide Sync:** Added new security error strings to `.pot`/`.po`, recompiled `gnn-wpdashboard-tr_TR.mo` (`0x950412de`, 43 entries), and synchronized category/color tables in `.agents/gnn-dashboard-new-plugin-guide.md`.
+
+---
+
 ## Session: v1.0.6 — 2026-08-05
 
 ### Self-Update & Release Pipeline (v1.0.1 → v1.0.6)

@@ -79,6 +79,11 @@ msgstr "Eklentilerde ara..."
 msgid "GNN Dashboard"
 msgstr "GNN Dashboard"
 
+#: includes/class-gnn-wpdashboard-installer.php:811 includes/class-gnn-wpdashboard-installer.php:816
+#: includes/class-gnn-wpdashboard-installer.php:838 includes/class-gnn-wpdashboard-installer.php:859
+msgid "Geçersiz eklenti veya tema hedefi."
+msgstr "Geçersiz eklenti veya tema hedefi."
+
 #: includes/class-gnn-wpdashboard-installer.php:620
 msgid "Geçersiz slug adı."
 msgstr "Geçersiz slug adı."
@@ -118,6 +123,10 @@ msgstr "Pasif"
 #: gnn-wpdashboard.php:138
 msgid "Settings"
 msgstr "Ayarlar"
+
+#: includes/class-gnn-wpdashboard-installer.php:842 includes/class-gnn-wpdashboard-installer.php:874
+msgid "Sistem paneli devre dışı bırakılamaz veya silinemez."
+msgstr "Sistem paneli devre dışı bırakılamaz veya silinemez."
 
 #: templates/dashboard-page.php:175
 msgid "Sürüm Notları (Changelog):"

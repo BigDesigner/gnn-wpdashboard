@@ -134,9 +134,10 @@ class GNN_WPDashboard_Installer {
 	/**
 	 * Get list of all tracked plugins/themes with installation status.
 	 *
+	 * @param bool $include_remote Whether to query GitHub for latest release metadata.
 	 * @return array List of items.
 	 */
-	public function get_plugins_list() {
+	public function get_plugins_list( $include_remote = true ) {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
@@ -174,7 +175,7 @@ class GNN_WPDashboard_Installer {
 					$installed_themes = wp_get_themes();
 					foreach ( $installed_themes as $t_slug => $t_obj ) {
 						$t_name = strtolower( $t_obj->get( 'Name' ) );
-						if ( $t_slug === $slug || 0 === strpos( $t_slug, $slug ) || 0 === strpos( $slug, $t_slug ) || false !== strpos( $t_name, 'gnn' ) ) {
+						if ( $t_slug === $slug || 0 === strpos( $t_slug, $slug . '-' ) || $t_name === strtolower( $data['name'] ) ) {
 							$theme             = $t_obj;
 							$actual_theme_slug = $t_slug;
 							$item['file']      = $t_slug;
@@ -188,7 +189,7 @@ class GNN_WPDashboard_Installer {
 					$item['installed_version'] = $theme->get( 'Version' ) ? $theme->get( 'Version' ) : '1.0.0';
 					$current_stylesheet        = get_stylesheet();
 					$current_template          = get_template();
-					$item['active']            = ( $current_stylesheet === $actual_theme_slug || $current_template === $actual_theme_slug || $current_stylesheet === $slug || $current_template === $slug || 0 === strpos( $current_stylesheet, 'gnn' ) );
+					$item['active']            = ( $current_stylesheet === $actual_theme_slug || $current_template === $actual_theme_slug || $current_stylesheet === $slug || $current_template === $slug );
 				}
 			} else {
 				// Check Plugin Status
@@ -201,20 +202,22 @@ class GNN_WPDashboard_Installer {
 				}
 			}
 
-			// Fetch latest release info from GitHub API or Redirect Fallback
-			$release = $this->fetch_github_release( $data['owner'], $data['repo'] );
-			if ( $release && ! empty( $release['tag_name'] ) ) {
-				$item['latest_version'] = preg_replace( '/^v/i', '', $release['tag_name'] );
-				$item['changelog']      = ! empty( $release['body'] ) ? $release['body'] : '';
-			} else {
-				$fallback_version = $this->fetch_latest_version_fallback( $data['owner'], $data['repo'] );
-				if ( $fallback_version ) {
-					$item['latest_version'] = $fallback_version;
+			if ( $include_remote ) {
+				// Fetch latest release info from GitHub API or Redirect Fallback
+				$release = $this->fetch_github_release( $data['owner'], $data['repo'] );
+				if ( $release && ! empty( $release['tag_name'] ) ) {
+					$item['latest_version'] = preg_replace( '/^v/i', '', $release['tag_name'] );
+					$item['changelog']      = ! empty( $release['body'] ) ? $release['body'] : '';
+				} else {
+					$fallback_version = $this->fetch_latest_version_fallback( $data['owner'], $data['repo'] );
+					if ( $fallback_version ) {
+						$item['latest_version'] = $fallback_version;
+					}
 				}
-			}
 
-			if ( $item['installed'] && version_compare( $item['installed_version'], $item['latest_version'], '<' ) ) {
-				$item['has_update'] = true;
+				if ( $item['installed'] && ! empty( $item['latest_version'] ) && version_compare( $item['installed_version'], $item['latest_version'], '<' ) ) {
+					$item['has_update'] = true;
+				}
 			}
 
 			$list[] = $item;
@@ -233,10 +236,17 @@ class GNN_WPDashboard_Installer {
 	private function find_installed_plugin_file( $slug, $installed_plugins ) {
 		foreach ( $installed_plugins as $file => $info ) {
 			$dir = dirname( $file );
-			if ( $file === $slug . '.php' || 0 === strpos( $file, $slug . '/' ) || $dir === $slug ) {
+			if ( 0 === strpos( $file, $slug . '/' ) || $dir === $slug ) {
 				return $file;
 			}
 		}
+
+		foreach ( $installed_plugins as $file => $info ) {
+			if ( basename( $file ) === $slug . '.php' ) {
+				return $file;
+			}
+		}
+
 		return false;
 	}
 
@@ -370,10 +380,12 @@ class GNN_WPDashboard_Installer {
 			$transient_key = 'gnn_wpdash_rel_' . md5( $data['owner'] . '_' . $data['repo'] );
 			delete_transient( $transient_key );
 		}
+		delete_transient( 'gnn_wpdashboard_github_release' );
+		delete_site_transient( 'update_plugins' );
 	}
 
 	/**
-	 * Fetch release data from GitHub API.
+	 * Fetch release data from GitHub API with redirect fallback caching.
 	 *
 	 * @param string $owner GitHub user.
 	 * @param string $repo  GitHub repository.
@@ -398,14 +410,24 @@ class GNN_WPDashboard_Installer {
 			)
 		);
 
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return false;
+		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( is_array( $data ) && ! empty( $data['tag_name'] ) ) {
+				set_transient( $transient_key, $data, 6 * HOUR_IN_SECONDS );
+				return $data;
+			}
 		}
 
-		$data = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( is_array( $data ) ) {
-			set_transient( $transient_key, $data, 6 * HOUR_IN_SECONDS );
-			return $data;
+		// When API is rate-limited (403) or unreachable, resolve the tag via redirect and cache for 1 hour.
+		$fallback_tag = $this->fetch_latest_tag_fallback( $owner, $repo );
+		if ( ! empty( $fallback_tag ) ) {
+			$fallback_data = array(
+				'tag_name' => $fallback_tag,
+				'body'     => '',
+				'assets'   => array(),
+			);
+			set_transient( $transient_key, $fallback_data, HOUR_IN_SECONDS );
+			return $fallback_data;
 		}
 
 		return false;
@@ -645,7 +667,7 @@ class GNN_WPDashboard_Installer {
 				$installed_themes = wp_get_themes();
 				foreach ( $installed_themes as $t_slug => $t_obj ) {
 					$t_name = strtolower( $t_obj->get( 'Name' ) );
-					if ( $t_slug === $slug || 0 === strpos( $slug, $t_slug ) || 0 === strpos( $t_slug, $slug ) || false !== strpos( $t_name, 'gnn' ) ) {
+					if ( $t_slug === $slug || 0 === strpos( $t_slug, $slug . '-' ) || $t_name === strtolower( $data['name'] ) ) {
 						$target_install_slug = $t_slug;
 						break;
 					}
@@ -663,13 +685,24 @@ class GNN_WPDashboard_Installer {
 
 			if ( $found ) {
 				$was_active = is_plugin_active( $found );
-				$found_dir  = WP_PLUGIN_DIR . '/' . dirname( $found );
+				$rel_dir    = dirname( $found );
+				$found_dir  = WP_PLUGIN_DIR . '/' . $rel_dir;
 
 				// Only clear away a stale folder that carries a different name than the
 				// destination. The destination itself is replaced by the upgrader, so it
 				// must never be deleted up front: a failed download would otherwise wipe
-				// a working plugin.
-				if ( ! $is_self && $found_dir !== $dest_dir && is_dir( $found_dir ) && $found_dir !== WP_PLUGIN_DIR ) {
+				// a working plugin. Guard against '.' so WP_PLUGIN_DIR is never deleted.
+				if (
+					! $is_self
+					&& '.' !== $rel_dir
+					&& '' !== $rel_dir
+					&& '/' !== $rel_dir
+					&& '\\' !== $rel_dir
+					&& 0 === validate_file( $rel_dir )
+					&& $found_dir !== $dest_dir
+					&& is_dir( $found_dir )
+					&& untrailingslashit( $found_dir ) !== untrailingslashit( WP_PLUGIN_DIR )
+				) {
 					if ( $was_active ) {
 						deactivate_plugins( $found );
 					}
@@ -716,6 +749,14 @@ class GNN_WPDashboard_Installer {
 			return new WP_Error( 'install_failed', __( 'Yükleme başarısız oldu.', 'gnn-wpdashboard' ) );
 		}
 
+		wp_clean_plugins_cache( true );
+		wp_clean_themes_cache( true );
+
+		if ( 'gnn-wpdashboard' === $slug ) {
+			delete_transient( 'gnn_wpdashboard_github_release' );
+			delete_site_transient( 'update_plugins' );
+		}
+
 		// Re-activate ONLY if item was previously active before update (self was never deactivated).
 		if ( $was_active && empty( $is_self ) ) {
 			if ( 'theme' === $data['type'] ) {
@@ -733,6 +774,50 @@ class GNN_WPDashboard_Installer {
 	}
 
 	/**
+	 * Verify whether a target file or theme slug belongs to the tracked GNN repositories.
+	 *
+	 * @param string $file Plugin relative path or theme slug.
+	 * @param string $type Item type ('plugin' or 'theme').
+	 * @return bool True when the item is managed by GNN WPDashboard.
+	 */
+	private function is_managed_item( $file, $type = 'plugin' ) {
+		if ( empty( $file ) || 0 !== validate_file( $file ) ) {
+			return false;
+		}
+
+		foreach ( $this->default_repos as $slug => $data ) {
+			if ( $data['type'] !== $type ) {
+				continue;
+			}
+
+			if ( 'theme' === $type ) {
+				if ( $file === $slug || $file === $data['file'] || 0 === strpos( $file, $slug . '-' ) ) {
+					return true;
+				}
+			} else {
+				if ( $file === $data['file'] || dirname( $file ) === $slug || basename( $file ) === $slug . '.php' ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check whether the given plugin file refers to GNN WPDashboard itself.
+	 *
+	 * @param string $file Plugin file path.
+	 * @return bool True if the file is the dashboard plugin itself.
+	 */
+	private function is_self_plugin( $file ) {
+		if ( defined( 'GNN_WPDASHBOARD_FILE' ) && $file === plugin_basename( GNN_WPDASHBOARD_FILE ) ) {
+			return true;
+		}
+		return ( 'gnn-wpdashboard' === dirname( $file ) || 'gnn-wpdashboard.php' === basename( $file ) );
+	}
+
+	/**
 	 * Activate a plugin or theme.
 	 *
 	 * @param string $file Plugin file path or theme slug.
@@ -740,7 +825,15 @@ class GNN_WPDashboard_Installer {
 	 * @return true|WP_Error
 	 */
 	public function activate_plugin( $file, $type = 'plugin' ) {
+		if ( ! $this->is_managed_item( $file, $type ) ) {
+			return new WP_Error( 'invalid_target', __( 'Geçersiz eklenti veya tema hedefi.', 'gnn-wpdashboard' ) );
+		}
+
 		if ( 'theme' === $type ) {
+			$theme = wp_get_theme( $file );
+			if ( ! $theme->exists() ) {
+				return new WP_Error( 'invalid_target', __( 'Geçersiz eklenti veya tema hedefi.', 'gnn-wpdashboard' ) );
+			}
 			switch_theme( $file );
 			return true;
 		}
@@ -764,6 +857,14 @@ class GNN_WPDashboard_Installer {
 	 * @return true|WP_Error
 	 */
 	public function deactivate_plugin( $file ) {
+		if ( ! $this->is_managed_item( $file, 'plugin' ) ) {
+			return new WP_Error( 'invalid_target', __( 'Geçersiz eklenti veya tema hedefi.', 'gnn-wpdashboard' ) );
+		}
+
+		if ( $this->is_self_plugin( $file ) ) {
+			return new WP_Error( 'self_protected', __( 'Sistem paneli devre dışı bırakılamaz veya silinemez.', 'gnn-wpdashboard' ) );
+		}
+
 		if ( ! function_exists( 'deactivate_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
@@ -780,6 +881,10 @@ class GNN_WPDashboard_Installer {
 	 * @return true|WP_Error
 	 */
 	public function delete_plugin( $file, $type = 'plugin' ) {
+		if ( ! $this->is_managed_item( $file, $type ) ) {
+			return new WP_Error( 'invalid_target', __( 'Geçersiz eklenti veya tema hedefi.', 'gnn-wpdashboard' ) );
+		}
+
 		if ( 'theme' === $type ) {
 			require_once ABSPATH . 'wp-admin/includes/theme.php';
 			if ( get_stylesheet() === $file || get_template() === $file ) {
@@ -790,6 +895,10 @@ class GNN_WPDashboard_Installer {
 				return $result;
 			}
 			return true;
+		}
+
+		if ( $this->is_self_plugin( $file ) ) {
+			return new WP_Error( 'self_protected', __( 'Sistem paneli devre dışı bırakılamaz veya silinemez.', 'gnn-wpdashboard' ) );
 		}
 
 		if ( ! function_exists( 'delete_plugins' ) ) {
@@ -818,17 +927,24 @@ class GNN_WPDashboard_Installer {
 		if ( function_exists( 'wp_raise_memory_limit' ) ) {
 			wp_raise_memory_limit( 'admin' );
 		}
-		$list = $this->get_plugins_list();
+		$list   = $this->get_plugins_list( false );
+		$errors = array();
 		foreach ( $list as $item ) {
 			if ( ! $item['installed'] ) {
-				$this->install_plugin( $item['slug'] );
+				$result = $this->install_plugin( $item['slug'] );
+				if ( is_wp_error( $result ) ) {
+					$errors[] = $item['name'] . ': ' . $result->get_error_message();
+				}
 			}
+		}
+		if ( ! empty( $errors ) ) {
+			return new WP_Error( 'bulk_install_failed', implode( ' | ', $errors ) );
 		}
 		return true;
 	}
 
 	/**
-	 * Bulk activate all installed tracked plugins/themes.
+	 * Bulk activate all installed tracked plugins (themes are excluded to preserve the active site theme).
 	 *
 	 * @return true|WP_Error
 	 */
@@ -837,11 +953,18 @@ class GNN_WPDashboard_Installer {
 		if ( function_exists( 'wp_raise_memory_limit' ) ) {
 			wp_raise_memory_limit( 'admin' );
 		}
-		$list = $this->get_plugins_list();
+		$list   = $this->get_plugins_list( false );
+		$errors = array();
 		foreach ( $list as $item ) {
-			if ( $item['installed'] && ! $item['active'] ) {
-				$this->activate_plugin( $item['file'], $item['type'] );
+			if ( $item['installed'] && ! $item['active'] && 'plugin' === $item['type'] ) {
+				$result = $this->activate_plugin( $item['file'], $item['type'] );
+				if ( is_wp_error( $result ) ) {
+					$errors[] = $item['name'] . ': ' . $result->get_error_message();
+				}
 			}
+		}
+		if ( ! empty( $errors ) ) {
+			return new WP_Error( 'bulk_activate_failed', implode( ' | ', $errors ) );
 		}
 		return true;
 	}
@@ -856,14 +979,21 @@ class GNN_WPDashboard_Installer {
 		if ( function_exists( 'wp_raise_memory_limit' ) ) {
 			wp_raise_memory_limit( 'admin' );
 		}
-		$list = $this->get_plugins_list();
+		$list   = $this->get_plugins_list( false );
+		$errors = array();
 		foreach ( $list as $item ) {
 			if ( $item['installed'] && $item['active'] && 'plugin' === $item['type'] ) {
-				if ( 'gnn-wpdashboard' === dirname( $item['file'] ) ) {
+				if ( $this->is_self_plugin( $item['file'] ) || 'gnn-wpdashboard' === $item['slug'] ) {
 					continue;
 				}
-				$this->deactivate_plugin( $item['file'] );
+				$result = $this->deactivate_plugin( $item['file'] );
+				if ( is_wp_error( $result ) ) {
+					$errors[] = $item['name'] . ': ' . $result->get_error_message();
+				}
 			}
+		}
+		if ( ! empty( $errors ) ) {
+			return new WP_Error( 'bulk_deactivate_failed', implode( ' | ', $errors ) );
 		}
 		return true;
 	}
@@ -878,14 +1008,24 @@ class GNN_WPDashboard_Installer {
 		if ( function_exists( 'wp_raise_memory_limit' ) ) {
 			wp_raise_memory_limit( 'admin' );
 		}
-		$list = $this->get_plugins_list();
+		$list   = $this->get_plugins_list( false );
+		$errors = array();
 		foreach ( $list as $item ) {
 			if ( $item['installed'] ) {
-				if ( 'gnn-wpdashboard' === dirname( $item['file'] ) ) {
+				if ( $this->is_self_plugin( $item['file'] ) || 'gnn-wpdashboard' === $item['slug'] ) {
 					continue;
 				}
-				$this->delete_plugin( $item['file'], $item['type'] );
+				if ( 'theme' === $item['type'] && $item['active'] ) {
+					continue;
+				}
+				$result = $this->delete_plugin( $item['file'], $item['type'] );
+				if ( is_wp_error( $result ) ) {
+					$errors[] = $item['name'] . ': ' . $result->get_error_message();
+				}
 			}
+		}
+		if ( ! empty( $errors ) ) {
+			return new WP_Error( 'bulk_delete_failed', implode( ' | ', $errors ) );
 		}
 		return true;
 	}

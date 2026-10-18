@@ -79,6 +79,11 @@ msgstr ""
 msgid "GNN Dashboard"
 msgstr ""
 
+#: includes/class-gnn-wpdashboard-installer.php:811 includes/class-gnn-wpdashboard-installer.php:816
+#: includes/class-gnn-wpdashboard-installer.php:838 includes/class-gnn-wpdashboard-installer.php:859
+msgid "Geçersiz eklenti veya tema hedefi."
+msgstr ""
+
 #: includes/class-gnn-wpdashboard-installer.php:620
 msgid "Geçersiz slug adı."
 msgstr ""
@@ -117,6 +122,10 @@ msgstr ""
 
 #: gnn-wpdashboard.php:138
 msgid "Settings"
+msgstr ""
+
+#: includes/class-gnn-wpdashboard-installer.php:842 includes/class-gnn-wpdashboard-installer.php:874
+msgid "Sistem paneli devre dışı bırakılamaz veya silinemez."
 msgstr ""
 
 #: templates/dashboard-page.php:175

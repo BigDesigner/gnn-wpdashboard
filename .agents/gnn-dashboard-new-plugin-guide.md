@@ -246,9 +246,9 @@ curl -s https://raw.githubusercontent.com/WordPress/WordPress/master/wp-admin/in
 | Kategori | Kullanım |
 |---|---|
 | `SEO & Pazarlama` | Sitemap, URL kısaltma, meta araçları |
-| `Güvenlik & Analiz` | IP, WHOIS, güvenlik, onay popup |
+| `Güvenlik & Analiz` | IP sorgulama, güvenlik, onay popup |
 | `Medya & Dosya` | Lightbox, dosya yönetimi, galeri |
-| `Araçlar & Network` | Mail, ağ araçları, sistem paneli |
+| `Araçlar & Network` | WHOIS, Mail, ağ araçları, sistem paneli |
 | `Temalar` | Yalnızca `'type' => 'theme'` ögeler |
 
 ### Adım 2 — Kapak tasarımı (ZORUNLU)
@@ -259,13 +259,13 @@ Her kartın **benzersiz** geometrik deseni ve renk gradyanı olmalı:
 
 | # | Eklenti | Renk | Desen |
 |---|---|---|---|
-| 1 | GNN Lightbox | Cyan `#0891b2` | Diagonal Lines |
-| 2 | GNN Terms Popup | Rose `#e11d48` | Dot Grid |
-| 3 | GNN Filehub | Orange `#ea580c` | Vertical Stripes |
+| 1 | GNN Lightbox | Teal `#0d9488` | Diagonal Stripes |
+| 2 | GNN Terms Popup | Blue `#2563eb` | Dot Matrix Shield |
+| 3 | GNN Filehub | Sky Blue `#0284c7` | Architectural Blueprint Grid |
 | 4 | GNN Sitemap | Violet `#7c3aed` | Crosshatch Circuit |
 | 5 | GNN IP Info | Slate `#334155` | Concentric Wave Rings |
 | 6 | GNN Whois | Amber `#d97706` | Topographic Waves |
-| 7 | GNN Shortner | Red `#e11d48` | Chevron Zig-Zag |
+| 7 | GNN Shortner | Rose `#e11d48` | Chevron Zig-Zag |
 | 8 | GNN SMTP Mail | Emerald `#059669` | Diagonal Hatch |
 | 9 | GNN WPTheme | Indigo `#4f46e5` | Diamond Mesh |
 | 10 | GNN Dashboard | Deep Navy `#0f172a` | Cyber Matrix Grid |
