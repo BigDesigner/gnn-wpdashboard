@@ -4,6 +4,14 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.1.6] - 2026-10-24
+
+### Fixed
+- `gnn-wptheme` (GNN) temasının kurulu ve güncellemeye uygun olduğunun algılanamaması sorunu giderildi: paket içindeki gerçek tema klasörü (`gnn`) `$default_repos['gnn-wptheme']['file']` olarak tanımlandı ve hem `gnn` hem `gnn-wptheme` klasör/isim eşleştirmesi geri yüklendi
+- Tema güncellendiğinde ve "Güncellemeleri Kontrol Et" butonuna basıldığında `update_themes` ve `gnn_github_update_check_v2` önbelleklerinin de temizlenmesi sağlandı
+
+---
+
 ## [1.1.5] - 2026-10-18
 
 ### Fixed

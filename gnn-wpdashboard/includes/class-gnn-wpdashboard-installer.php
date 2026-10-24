@@ -112,7 +112,7 @@ class GNN_WPDashboard_Installer {
 			'type'         => 'theme',
 			'owner'        => 'BigDesigner',
 			'repo'         => 'gnn-wptheme',
-			'file'         => 'gnn-wptheme',
+			'file'         => 'gnn',
 			'category'     => 'Temalar',
 			'description'  => 'Performanslı, SEO uyumlu ve modern GNN WordPress teması.',
 			'icon'         => 'palette',
@@ -167,18 +167,24 @@ class GNN_WPDashboard_Installer {
 			);
 
 			if ( 'theme' === $data['type'] ) {
-				// Check Theme Status with fallback for variations in theme directory name
-				$theme             = wp_get_theme( $slug );
-				$actual_theme_slug = $slug;
+				// Check Theme Status with fallback for variations in theme directory name (e.g. 'gnn' vs 'gnn-wptheme')
+				$actual_theme_slug = ! empty( $data['file'] ) ? $data['file'] : $slug;
+				$theme             = wp_get_theme( $actual_theme_slug );
+
+				if ( ! $theme->exists() && $actual_theme_slug !== $slug ) {
+					$theme = wp_get_theme( $slug );
+					if ( $theme->exists() ) {
+						$actual_theme_slug = $slug;
+					}
+				}
 
 				if ( ! $theme->exists() ) {
 					$installed_themes = wp_get_themes();
 					foreach ( $installed_themes as $t_slug => $t_obj ) {
 						$t_name = strtolower( $t_obj->get( 'Name' ) );
-						if ( $t_slug === $slug || 0 === strpos( $t_slug, $slug . '-' ) || $t_name === strtolower( $data['name'] ) ) {
+						if ( $t_slug === $slug || $t_slug === $data['file'] || 0 === strpos( $t_slug, $slug ) || 0 === strpos( $slug, $t_slug ) || false !== strpos( $t_name, 'gnn' ) ) {
 							$theme             = $t_obj;
 							$actual_theme_slug = $t_slug;
-							$item['file']      = $t_slug;
 							break;
 						}
 					}
@@ -186,10 +192,11 @@ class GNN_WPDashboard_Installer {
 
 				if ( $theme->exists() ) {
 					$item['installed']         = true;
+					$item['file']              = $actual_theme_slug;
 					$item['installed_version'] = $theme->get( 'Version' ) ? $theme->get( 'Version' ) : '1.0.0';
 					$current_stylesheet        = get_stylesheet();
 					$current_template          = get_template();
-					$item['active']            = ( $current_stylesheet === $actual_theme_slug || $current_template === $actual_theme_slug || $current_stylesheet === $slug || $current_template === $slug );
+					$item['active']            = ( $current_stylesheet === $actual_theme_slug || $current_template === $actual_theme_slug || $current_stylesheet === $slug || $current_template === $slug || 0 === strpos( $current_stylesheet, 'gnn' ) );
 				}
 			} else {
 				// Check Plugin Status
@@ -381,7 +388,9 @@ class GNN_WPDashboard_Installer {
 			delete_transient( $transient_key );
 		}
 		delete_transient( 'gnn_wpdashboard_github_release' );
+		delete_transient( 'gnn_github_update_check_v2' );
 		delete_site_transient( 'update_plugins' );
+		delete_site_transient( 'update_themes' );
 	}
 
 	/**
@@ -662,12 +671,21 @@ class GNN_WPDashboard_Installer {
 		$target_install_slug = $slug;
 
 		if ( 'theme' === $data['type'] ) {
-			$theme = wp_get_theme( $slug );
+			$target_install_slug = ! empty( $data['file'] ) ? $data['file'] : $slug;
+			$theme               = wp_get_theme( $target_install_slug );
+
+			if ( ! $theme->exists() && $target_install_slug !== $slug ) {
+				$theme = wp_get_theme( $slug );
+				if ( $theme->exists() ) {
+					$target_install_slug = $slug;
+				}
+			}
+
 			if ( ! $theme->exists() ) {
 				$installed_themes = wp_get_themes();
 				foreach ( $installed_themes as $t_slug => $t_obj ) {
 					$t_name = strtolower( $t_obj->get( 'Name' ) );
-					if ( $t_slug === $slug || 0 === strpos( $t_slug, $slug . '-' ) || $t_name === strtolower( $data['name'] ) ) {
+					if ( $t_slug === $slug || $t_slug === $data['file'] || 0 === strpos( $t_slug, $slug ) || 0 === strpos( $slug, $t_slug ) || false !== strpos( $t_name, 'gnn' ) ) {
 						$target_install_slug = $t_slug;
 						break;
 					}
@@ -752,6 +770,11 @@ class GNN_WPDashboard_Installer {
 		wp_clean_plugins_cache( true );
 		wp_clean_themes_cache( true );
 
+		if ( 'theme' === $data['type'] ) {
+			delete_transient( 'gnn_github_update_check_v2' );
+			delete_site_transient( 'update_themes' );
+		}
+
 		if ( 'gnn-wpdashboard' === $slug ) {
 			delete_transient( 'gnn_wpdashboard_github_release' );
 			delete_site_transient( 'update_plugins' );
@@ -791,7 +814,7 @@ class GNN_WPDashboard_Installer {
 			}
 
 			if ( 'theme' === $type ) {
-				if ( $file === $slug || $file === $data['file'] || 0 === strpos( $file, $slug . '-' ) ) {
+				if ( $file === $slug || $file === $data['file'] || 0 === strpos( $file, $slug ) || 0 === strpos( $slug, $file ) ) {
 					return true;
 				}
 			} else {
