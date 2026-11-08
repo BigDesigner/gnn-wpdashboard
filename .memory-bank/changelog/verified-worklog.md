@@ -3,9 +3,11 @@
 ## Session: Modern SaaS UI Redesign (v1.2.0) — 2026-11-08
 
 ### UI/UX Modernization
-- **Top Navigation Bar (`gnn-topbar`):** Replaced vertical left sidebar with a full-width header featuring the GNN brand squircle, green `AKTİF / REGISTERED` status pill, horizontal category tabs (`Tümü`, `SEO & Pazarlama`, `Güvenlik & Analiz`, `Medya & Dosya`, `Araçlar & Network`, `Temalar`) with smooth mobile horizontal scroll, and quick refresh button.
+- **Top Navigation Bar (`gnn-topbar`):** Replaced vertical left sidebar with a full-width header featuring clean typography (`GNN Dashboard` with muted `WordPress Ecosystem` subtext), removing clutter and unneeded status badges to give category tabs maximum horizontal breathing room.
 - **Hero & System Status Card (`gnn-hero-section`):** Added hero area with category squircle, breadcrumbs (`GNN / Eklentiler & Temalar`), page title, and a dynamic SaaS System Status Card (`Sistem Güncel` / `GNN Dashboard v1.2.0` with checkmark icon, dynamically updating to warning if updates are available).
-- **Segmented Filter Controls (`gnn-filter-toolbar`):** Converted status filters into modern pill buttons preserving all DOM counter spans (`#count-all`, `#count-uninstalled`, `#count-active`, `#count-inactive`, `#count-updates`) and integrated live search box.
+- **Segmented Filter Controls & Category Synchronization:** Converted status filters into modern pill buttons. Counters (`#count-all`, `#count-uninstalled`, `#count-active`, `#count-inactive`, `#count-updates`, `#count-favorites`) dynamically recalculate based on the active category, eliminating cross-filter mismatches and empty states.
+- **Persistent Favorites Feature:** Added working "Favorilere Ekle" star toggle with persistent `localStorage` storage and dedicated "Favoriler" status filter tab.
+- **Dismissible Server Notice:** Added "Bir daha gösterme" persistent dismiss mechanism to the server limits alert banner via `localStorage`.
 - **Modern 3-Column Card Grid (`gnn-modern-card`):**
   - Converted cards into pure white rounded rectangles (`rounded-2xl`, border `1px solid #e2e8f0`, soft shadows).
   - Centered brand icon squircle (`.gnn-brand-icon-box`) with custom theme color palettes for each repository.

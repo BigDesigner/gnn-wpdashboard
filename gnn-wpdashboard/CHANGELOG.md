@@ -9,8 +9,11 @@ All notable changes to **GNN WPDashboard** are documented here.
 ### Changed
 - GNN WPDashboard arayüzü modern SaaS düzenine geçirildi:
   - Dikey sol kenar çubuğu kaldırılarak yerine yatay üst kategori gezinti sekmeleri (`Tümü`, `SEO & Pazarlama`, `Güvenlik & Analiz`, `Medya & Dosya`, `Araçlar & Network`, `Temalar`) eklendi
+  - Üst bar sadeleştirildi: logo kutusu ve `AKTİF` rozeti kaldırılarak marka başlığı (`GNN Dashboard`) ve soluk alt metin (`WordPress Ecosystem`) ile sekmelere maksimum yatay alan sağlandı
   - Üst başlık alanına breadcrumb hiyerarşisi ve canlı sistem durum kartı (`Sistem Güncel` / güncelleme bildirimleri) entegre edildi
-  - Durum filtreleri modern segment hap butonlarına dönüştürüldü ve sayaçlar korundu
+  - Kategori filtreleme ile durum filtreleme senkronize edildi: durum sayaçları aktif kategoriye göre dinamik hesaplanacak şekilde güncellendi ve boş arama durumları akıllı kategori geçişiyle önlendi
+  - "Favorilere Ekle" özelliği tam işlevsel hale getirildi: kalıcı `localStorage` saklaması ve durum çubuğunda "Favoriler" filtresi eklendi
+  - "Sunucu Limitleri" uyarısına "Bir daha gösterme" butonu ve kalıcı gizleme tercihi eklendi
   - Eklenti ve tema kartları ortalanmış marka ikonları, modern tipografi ve net aksiyon butonlarıyla 3 sütunlu modern düzene uyarlandı
   - Tüm stiller `.gnn-wpdashboard-wrap` altında güvenli şekilde izole edildi ve WordPress admin uyumluluğu korundu
 

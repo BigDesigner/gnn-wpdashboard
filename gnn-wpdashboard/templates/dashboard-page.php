@@ -17,21 +17,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<!-- 1. Top Navigation Bar -->
 		<nav class="gnn-topbar bg-white border border-slate-200/80 rounded-2xl px-6 py-3.5 shadow-sm flex flex-col lg:flex-row justify-between items-center gap-4">
 			
-			<!-- Brand & Status Pill -->
-			<div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
-				<div class="flex items-center gap-2.5">
-					<div class="gnn-brand-logo flex items-center justify-center font-bold text-white text-lg tracking-wider rounded-xl">
-						GNN
-					</div>
-					<div class="flex flex-col">
-						<span class="font-bold text-slate-900 text-sm leading-tight">GNN Dashboard</span>
-						<span class="text-[11px] text-slate-400 font-medium">WordPress Ecosystem</span>
-					</div>
+			<!-- Brand Header -->
+			<div class="flex items-center w-full lg:w-auto justify-start shrink-0">
+				<div class="flex flex-col">
+					<span class="font-extrabold text-slate-900 text-base tracking-tight leading-none">GNN Dashboard</span>
+					<span class="text-[11px] text-slate-400 font-normal leading-normal mt-1">WordPress Ecosystem</span>
 				</div>
-				<span class="gnn-registered-badge flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
-					<span class="material-symbols-outlined text-xs">verified</span>
-					<?php esc_html_e( 'AKTİF / REGISTERED', 'gnn-wpdashboard' ); ?>
-				</span>
 			</div>
 
 			<!-- Category Tabs (Horizontal Top Navigation) -->
@@ -106,15 +97,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<!-- 3. Notice / Server Information Banner -->
-		<div class="gnn-notice-banner bg-blue-50/70 border border-blue-200/70 text-blue-900 rounded-xl px-4 py-3 flex items-center gap-3 text-xs">
-			<span class="material-symbols-outlined text-blue-600 text-lg shrink-0">info</span>
-			<span class="flex-grow font-medium leading-relaxed">
-				<?php esc_html_e( 'Sunucu limitleri: Sunucunuzun bellek ve yürütme limitlerine göre yalnızca ihtiyacınız olan eklentileri aktif tutmanız önerilir.', 'gnn-wpdashboard' ); ?>
-			</span>
+		<div id="gnn-server-limits-banner" class="gnn-notice-banner bg-blue-50/70 border border-blue-200/70 text-blue-900 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 text-xs">
+			<div class="flex items-center gap-2.5">
+				<span class="material-symbols-outlined text-blue-600 text-lg shrink-0">info</span>
+				<span class="font-medium leading-relaxed">
+					<?php esc_html_e( 'Sunucu limitleri: Sunucunuzun bellek ve yürütme limitlerine göre yalnızca ihtiyacınız olan eklentileri aktif tutmanız önerilir.', 'gnn-wpdashboard' ); ?>
+				</span>
+			</div>
+			<button id="btn-dismiss-server-notice" class="text-blue-600 hover:text-blue-900 hover:bg-blue-100/60 px-2 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1 border-none bg-transparent cursor-pointer shrink-0 transition-all" title="<?php esc_attr_e( 'Bu uyarıyı bir daha gösterme', 'gnn-wpdashboard' ); ?>">
+				<span class="material-symbols-outlined text-sm">close</span>
+				<span><?php esc_html_e( 'Bir daha gösterme', 'gnn-wpdashboard' ); ?></span>
+			</button>
 		</div>
 
 		<!-- Update Available Notification Banner -->
-		<div id="update-notification-banner" class="hidden bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-4 flex items-center justify-between shadow-sm">
+		<div id="update-notification-banner" class="hidden bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-4 flex items-center justify-between shadow-sm cursor-pointer hover:bg-amber-100/80 transition-colors" title="<?php esc_attr_e( 'Güncellemeleri filtrele', 'gnn-wpdashboard' ); ?>">
 			<div class="flex items-center gap-3">
 				<div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
 					<span class="material-symbols-outlined text-xl">system_update</span>
@@ -124,6 +121,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<p id="update-notification-text" class="text-xs text-amber-800 m-0 font-medium"></p>
 				</div>
 			</div>
+			<span class="material-symbols-outlined text-amber-700 text-lg">chevron_right</span>
 		</div>
 
 		<!-- 4. Filter Toolbar: Status Segmented Control + Search Box -->
@@ -154,6 +152,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<button data-status="updates" class="status-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all border-none cursor-pointer">
 					<span><?php esc_html_e( 'Güncelleme', 'gnn-wpdashboard' ); ?></span>
 					<span id="count-updates" class="counter-badge bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
+				</button>
+
+				<button data-status="favorites" class="status-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all border-none cursor-pointer">
+					<span class="material-symbols-outlined text-xs text-amber-500">star</span>
+					<span><?php esc_html_e( 'Favoriler', 'gnn-wpdashboard' ); ?></span>
+					<span id="count-favorites" class="counter-badge bg-amber-50 text-amber-800 text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
 				</button>
 			</div>
 

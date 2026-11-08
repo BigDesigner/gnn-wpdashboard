@@ -39,13 +39,23 @@
 	font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-/* Brand Logo Squircle */
-.gnn-wpdashboard-wrap .gnn-brand-logo {
-	width: 44px !important;
-	height: 44px !important;
-	background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-	box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
-	color: #ffffff !important;
+/* Brand Header Typography */
+.gnn-wpdashboard-wrap .gnn-brand-header {
+	user-select: none !important;
+}
+
+.gnn-wpdashboard-wrap .gnn-brand-header span:first-child {
+	font-size: 15px !important;
+	font-weight: 800 !important;
+	color: #0f172a !important;
+	letter-spacing: -0.02em !important;
+}
+
+.gnn-wpdashboard-wrap .gnn-brand-header span:last-child {
+	font-size: 10px !important;
+	color: #94a3b8 !important;
+	font-weight: 500 !important;
+	letter-spacing: 0.02em !important;
 }
 
 /* Category Navigation Tabs */

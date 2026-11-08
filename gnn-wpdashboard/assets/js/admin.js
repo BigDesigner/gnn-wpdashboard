@@ -26,7 +26,56 @@
 			.replace(/'/g, '&#039;');
 	}
 
+	function getFavorites() {
+		try {
+			const favs = localStorage.getItem('gnn_favorites');
+			return favs ? JSON.parse(favs) : [];
+		} catch (e) {
+			return [];
+		}
+	}
+
+	function isFavorite(slug) {
+		return getFavorites().includes(slug);
+	}
+
+	function toggleFavorite(slug) {
+		let favs = getFavorites();
+		if (favs.includes(slug)) {
+			favs = favs.filter(s => s !== slug);
+		} else {
+			favs.push(slug);
+		}
+		try {
+			localStorage.setItem('gnn_favorites', JSON.stringify(favs));
+		} catch (e) {}
+		updateCounters();
+		renderGrid();
+	}
+
 	$(document).ready(function() {
+		// Server Limits Notice Dismiss (persistent via localStorage)
+		if (localStorage.getItem('gnn_dismiss_server_notice') === '1') {
+			$('#gnn-server-limits-banner').addClass('hidden');
+		}
+
+		$('#btn-dismiss-server-notice').on('click', function() {
+			localStorage.setItem('gnn_dismiss_server_notice', '1');
+			$('#gnn-server-limits-banner').slideUp(200);
+		});
+
+		// Notification Banner Click — Jump to Updates
+		$('#update-notification-banner').on('click', function() {
+			activeCategoryFilter = 'all';
+			activeStatusFilter = 'updates';
+			$('.category-tab').removeClass('active-cat-tab text-slate-900 font-semibold').addClass('text-slate-600 font-medium');
+			$('.category-tab[data-category="all"]').addClass('active-cat-tab text-slate-900 font-semibold').removeClass('text-slate-600 font-medium');
+			$('.status-tab').removeClass('active-tab text-slate-900 font-semibold').addClass('text-slate-600 font-medium');
+			$('.status-tab[data-status="updates"]').addClass('active-tab text-slate-900 font-semibold').removeClass('text-slate-600 font-medium');
+			updateCounters();
+			renderGrid();
+		});
+
 		loadPlugins();
 
 		// Sync Button — clear cache first, then reload live GitHub data
@@ -55,10 +104,35 @@
 
 		// Status Tab Filters
 		$('.status-tab').on('click', function() {
+			const targetStatus = $(this).data('status');
+			activeStatusFilter = targetStatus;
+
+			// If user clicked 'updates' and current category has no updates, but global does:
+			if (targetStatus === 'updates') {
+				const catUpdates = pluginsData.filter(p => (activeCategoryFilter === 'all' || p.category === activeCategoryFilter) && p.has_update).length;
+				const globalUpdates = pluginsData.filter(p => p.has_update).length;
+				if (catUpdates === 0 && globalUpdates > 0) {
+					activeCategoryFilter = 'all';
+					$('.category-tab').removeClass('active-cat-tab text-slate-900 font-semibold').addClass('text-slate-600 font-medium');
+					$('.category-tab[data-category="all"]').addClass('active-cat-tab text-slate-900 font-semibold').removeClass('text-slate-600 font-medium');
+				}
+			}
+
+			// If user clicked 'favorites' and current category has no favorites, but global does:
+			if (targetStatus === 'favorites') {
+				const favs = getFavorites();
+				const catFavs = pluginsData.filter(p => (activeCategoryFilter === 'all' || p.category === activeCategoryFilter) && favs.includes(p.slug)).length;
+				if (catFavs === 0 && favs.length > 0) {
+					activeCategoryFilter = 'all';
+					$('.category-tab').removeClass('active-cat-tab text-slate-900 font-semibold').addClass('text-slate-600 font-medium');
+					$('.category-tab[data-category="all"]').addClass('active-cat-tab text-slate-900 font-semibold').removeClass('text-slate-600 font-medium');
+				}
+			}
+
 			$('.status-tab').removeClass('active-tab text-slate-900 font-semibold').addClass('text-slate-600 font-medium');
 			$(this).addClass('active-tab text-slate-900 font-semibold').removeClass('text-slate-600 font-medium');
 
-			activeStatusFilter = $(this).data('status');
+			updateCounters();
 			renderGrid();
 		});
 
@@ -68,7 +142,33 @@
 			$(this).addClass('active-cat-tab text-slate-900 font-semibold').removeClass('text-slate-600 font-medium');
 
 			activeCategoryFilter = $(this).data('category');
+
+			// If the active status has 0 items in this new category, reset status filter to 'all' so screen isn't empty!
+			const favs = getFavorites();
+			const scopedData = activeCategoryFilter === 'all' ? pluginsData : pluginsData.filter(p => p.category === activeCategoryFilter);
+			let matchCount = scopedData.length;
+			if (activeStatusFilter === 'active') matchCount = scopedData.filter(p => p.active).length;
+			else if (activeStatusFilter === 'updates') matchCount = scopedData.filter(p => p.has_update).length;
+			else if (activeStatusFilter === 'inactive') matchCount = scopedData.filter(p => p.installed && !p.active).length;
+			else if (activeStatusFilter === 'uninstalled') matchCount = scopedData.filter(p => !p.installed).length;
+			else if (activeStatusFilter === 'favorites') matchCount = scopedData.filter(p => favs.includes(p.slug)).length;
+
+			if (matchCount === 0 && scopedData.length > 0) {
+				activeStatusFilter = 'all';
+				$('.status-tab').removeClass('active-tab text-slate-900 font-semibold').addClass('text-slate-600 font-medium');
+				$('.status-tab[data-status="all"]').addClass('active-tab text-slate-900 font-semibold').removeClass('text-slate-600 font-medium');
+			}
+
+			updateCounters();
 			renderGrid();
+		});
+
+		// Toggle Favorite Listener
+		$('#plugin-grid-container').on('click', '.btn-toggle-favorite', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			const slug = $(this).data('slug');
+			toggleFavorite(slug);
 		});
 
 		// Modal Close Listeners
@@ -158,94 +258,79 @@
 	}
 
 	function updateCounters() {
-		let total = pluginsData.length;
-		let active = pluginsData.filter(p => p.active).length;
-		let updates = pluginsData.filter(p => p.has_update).length;
-		let inactive = pluginsData.filter(p => p.installed && !p.active).length;
-		let uninstalled = pluginsData.filter(p => !p.installed).length;
+		const favorites = getFavorites();
+		const scopedPlugins = activeCategoryFilter === 'all'
+			? pluginsData
+			: pluginsData.filter(p => p.category === activeCategoryFilter);
 
-		let canBulkActivate = pluginsData.filter(p => p.installed && !p.active && p.type === 'plugin').length > 0;
-		let canBulkDeactivate = pluginsData.filter(p => p.installed && p.active && p.type === 'plugin' && p.slug !== 'gnn-wpdashboard').length > 0;
-		let canBulkDelete = pluginsData.filter(p => p.installed && p.slug !== 'gnn-wpdashboard' && !(p.type === 'theme' && p.active)).length > 0;
+		let total = scopedPlugins.length;
+		let active = scopedPlugins.filter(p => p.active).length;
+		let updates = scopedPlugins.filter(p => p.has_update).length;
+		let inactive = scopedPlugins.filter(p => p.installed && !p.active).length;
+		let uninstalled = scopedPlugins.filter(p => !p.installed).length;
+		let favCount = scopedPlugins.filter(p => favorites.includes(p.slug)).length;
 
 		$('#count-all').text(total);
 		$('#count-active').text(active);
 		$('#count-updates').text(updates);
 		$('#count-inactive').text(inactive);
 		$('#count-uninstalled').text(uninstalled);
+		$('#count-favorites').text(favCount);
 
-		// Dynamic Bulk Action Buttons Visibility
-		// 1. Tümünü Kur: Visible ONLY if there are uninstalled plugins/themes
+		// Dynamic Bulk Action Buttons Visibility (scoped to current view)
+		let canBulkActivate = scopedPlugins.filter(p => p.installed && !p.active && p.type === 'plugin').length > 0;
+		let canBulkDeactivate = scopedPlugins.filter(p => p.installed && p.active && p.type === 'plugin' && p.slug !== 'gnn-wpdashboard').length > 0;
+		let canBulkDelete = scopedPlugins.filter(p => p.installed && p.slug !== 'gnn-wpdashboard' && !(p.type === 'theme' && p.active)).length > 0;
+
 		if (uninstalled > 0) {
 			$('#btn-bulk-install').removeClass('hidden');
 		} else {
 			$('#btn-bulk-install').addClass('hidden');
 		}
 
-		// 2. Tümünü Etkinleştir: Visible ONLY if there are installed plugins that are NOT active (themes excluded)
 		if (canBulkActivate) {
 			$('#btn-bulk-activate').removeClass('hidden');
 		} else {
 			$('#btn-bulk-activate').addClass('hidden');
 		}
 
-		// 3. Tümünü Devre Dışı Bırak: Visible ONLY if there are active plugins other than gnn-wpdashboard
 		if (canBulkDeactivate) {
 			$('#btn-bulk-deactivate').removeClass('hidden');
 		} else {
 			$('#btn-bulk-deactivate').addClass('hidden');
 		}
 
-		// 4. Tümünü Sil: Visible ONLY if there are deletable installed plugins/themes other than gnn-wpdashboard
 		if (canBulkDelete) {
 			$('#btn-bulk-delete').removeClass('hidden');
 		} else {
 			$('#btn-bulk-delete').addClass('hidden');
 		}
 
-		if (updates > 0) {
+		// Global updates for Hero and Banner
+		const globalUpdates = pluginsData.filter(p => p.has_update).length;
+		if (globalUpdates > 0) {
 			const updateItems = pluginsData.filter(p => p.has_update);
-			if (updates === 1) {
+			if (globalUpdates === 1) {
 				const item = updateItems[0];
 				const safeName = escapeHtml(item.name);
 				const safeVer = escapeHtml(item.latest_version);
-				if (item.type === 'theme') {
-					$('#update-notification-title').text('Tema Güncellemesi Mevcut');
-					$('#update-notification-text').html(
-						`<strong>${safeName}</strong> teması için yeni sürüm (v${safeVer}) mevcut.`
-					);
-				} else {
-					$('#update-notification-title').text('Eklenti Güncellemesi Mevcut');
-					$('#update-notification-text').html(
-						`<strong>${safeName}</strong> eklentisi için yeni sürüm (v${safeVer}) mevcut.`
-					);
-				}
+				const typeLabel = item.type === 'theme' ? 'Tema Güncellemesi' : 'Eklenti Güncellemesi';
+				$('#update-notification-title').text(typeLabel + ' Mevcut');
+				$('#update-notification-text').html(
+					`<strong>${safeName}</strong> ${item.type === 'theme' ? 'teması' : 'eklentisi'} için yeni sürüm (v${safeVer}) mevcut. Tıklayarak güncellemeleri görüntüleyin.`
+				);
 			} else {
-				const hasPlugins = updateItems.some(p => p.type === 'plugin');
-				const hasThemes = updateItems.some(p => p.type === 'theme');
-				if (hasPlugins && hasThemes) {
-					$('#update-notification-title').text('Eklenti ve Tema Güncellemeleri Mevcut');
-					$('#update-notification-text').html(
-						`<strong>${updates}</strong> öge (eklenti ve tema) için yeni sürüm mevcut.`
-					);
-				} else if (hasThemes) {
-					$('#update-notification-title').text('Tema Güncellemeleri Mevcut');
-					$('#update-notification-text').html(
-						`<strong>${updates}</strong> tema için yeni sürüm mevcut.`
-					);
-				} else {
-					$('#update-notification-title').text('Eklenti Güncellemeleri Mevcut');
-					$('#update-notification-text').html(
-						`<strong>${updates}</strong> eklenti için yeni sürüm mevcut.`
-					);
-				}
+				$('#update-notification-title').text('Güncellemeler Mevcut');
+				$('#update-notification-text').html(
+					`<strong>${globalUpdates}</strong> öge için yeni sürüm mevcut. Tıklayarak güncellemeleri görüntüleyin.`
+				);
 			}
 			$('#update-notification-banner').removeClass('hidden');
 
 			// Update Hero Status Widget
 			$('#hero-status-icon-wrap').removeClass('bg-emerald-50 text-emerald-600').addClass('bg-amber-50 text-amber-600');
 			$('#hero-status-icon').text('system_update');
-			$('#hero-status-title').text(updates + ' Güncelleme Mevcut');
+			$('#hero-status-title').text(globalUpdates + ' Güncelleme Mevcut');
 			$('#hero-status-sub').text('Eklenti/temalarınızı güncelleyin');
 		} else {
 			$('#update-notification-banner').addClass('hidden');
@@ -265,12 +350,15 @@
 		const $container = $('#plugin-grid-container');
 		$container.empty();
 
+		const favorites = getFavorites();
+
 		let filtered = pluginsData.filter(function(item) {
 			// Status filter
 			if (activeStatusFilter === 'active' && !item.active) return false;
 			if (activeStatusFilter === 'updates' && !item.has_update) return false;
 			if (activeStatusFilter === 'inactive' && (!item.installed || item.active)) return false;
 			if (activeStatusFilter === 'uninstalled' && item.installed) return false;
+			if (activeStatusFilter === 'favorites' && !favorites.includes(item.slug)) return false;
 
 			// Category filter
 			if (activeCategoryFilter !== 'all' && item.category !== activeCategoryFilter) return false;
@@ -319,6 +407,10 @@
 
 		let borderClass = 'border-slate-200/80';
 		let versionHTML = '';
+
+		const fav = isFavorite(item.slug);
+		const favClass = fav ? 'text-amber-400 filled' : 'text-slate-300 hover:text-amber-400';
+		const favTitle = fav ? 'Favorilerden Çıkar' : 'Favorilere Ekle';
 
 		if (item.has_update) {
 			borderClass = 'border-amber-300 ring-2 ring-amber-300/40';
@@ -388,7 +480,7 @@
 		return `
 			<article class="plugin-card gnn-modern-card bg-white rounded-2xl border ${borderClass} shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between p-6 relative">
 				<div class="flex items-center justify-between w-full mb-1">
-					<span class="gnn-card-star text-slate-300 hover:text-amber-400 cursor-pointer transition-colors material-symbols-outlined text-lg" title="Favorilere Ekle">star</span>
+					<button type="button" data-slug="${safeSlug}" class="btn-toggle-favorite ${favClass} cursor-pointer transition-all material-symbols-outlined text-lg border-none bg-transparent p-0 flex items-center justify-center leading-none hover:scale-125" title="${favTitle}">star</button>
 					<a href="${safeRepoUrl}" target="_blank" class="gnn-card-github text-slate-400 hover:text-slate-800 transition-colors flex items-center justify-center p-1 rounded-lg hover:bg-slate-100" title="GitHub Deposu">
 						<span class="material-symbols-outlined text-base">code</span>
 					</a>
