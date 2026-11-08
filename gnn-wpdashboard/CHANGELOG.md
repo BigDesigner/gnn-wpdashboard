@@ -4,6 +4,16 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.2.1] - 2026-11-08
+
+### Fixed
+- Üst bar marka başlığı sadeleştirildi, logo kutusu ve `AKTİF` rozeti kaldırılarak kategori sekmelerinin taşması önlendi
+- Kategori ve durum filtreleri senkronize edildi: durum sayaçları seçili kategoriye göre dinamik hesaplanacak şekilde güncellendi
+- "Favorilere Ekle" özelliği `localStorage` ve "Favoriler" sekmesiyle tam işlevsel hale getirildi
+- "Sunucu Limitleri" uyarısına "Bir daha gösterme" butonu ve kalıcı gizleme tercihi eklendi
+
+---
+
 ## [1.2.0] - 2026-11-08
 
 ### Changed

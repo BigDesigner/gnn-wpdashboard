@@ -10,9 +10,9 @@
   "git_history_available": true,
   "worktree_status": "modified",
   "current_sprint": {
-    "sprint_id": "v1.2.0-ui-redesign",
+    "sprint_id": "v1.2.1-release",
     "active_tasks": [
-      "Modern SaaS UI redesign implemented and verified"
+      "Released v1.2.1 with UX, filter and favorites polish"
     ]
   },
   "tracked_memory_areas": {
