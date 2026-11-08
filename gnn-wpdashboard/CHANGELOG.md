@@ -4,6 +4,18 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.2.0] - 2026-11-08
+
+### Changed
+- GNN WPDashboard arayüzü modern SaaS düzenine geçirildi:
+  - Dikey sol kenar çubuğu kaldırılarak yerine yatay üst kategori gezinti sekmeleri (`Tümü`, `SEO & Pazarlama`, `Güvenlik & Analiz`, `Medya & Dosya`, `Araçlar & Network`, `Temalar`) eklendi
+  - Üst başlık alanına breadcrumb hiyerarşisi ve canlı sistem durum kartı (`Sistem Güncel` / güncelleme bildirimleri) entegre edildi
+  - Durum filtreleri modern segment hap butonlarına dönüştürüldü ve sayaçlar korundu
+  - Eklenti ve tema kartları ortalanmış marka ikonları, modern tipografi ve net aksiyon butonlarıyla 3 sütunlu modern düzene uyarlandı
+  - Tüm stiller `.gnn-wpdashboard-wrap` altında güvenli şekilde izole edildi ve WordPress admin uyumluluğu korundu
+
+---
+
 ## [1.1.6] - 2026-10-24
 
 ### Fixed

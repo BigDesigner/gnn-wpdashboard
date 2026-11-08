@@ -55,10 +55,8 @@
 
 		// Status Tab Filters
 		$('.status-tab').on('click', function() {
-			$('.status-tab').removeClass('active-tab bg-secondary-container text-on-secondary-container')
-				.addClass('text-on-surface-variant hover:bg-surface-container-high');
-			$(this).addClass('active-tab bg-secondary-container text-on-secondary-container')
-				.removeClass('text-on-surface-variant hover:bg-surface-container-high');
+			$('.status-tab').removeClass('active-tab text-slate-900 font-semibold').addClass('text-slate-600 font-medium');
+			$(this).addClass('active-tab text-slate-900 font-semibold').removeClass('text-slate-600 font-medium');
 
 			activeStatusFilter = $(this).data('status');
 			renderGrid();
@@ -66,10 +64,8 @@
 
 		// Category Tab Filters
 		$('.category-tab').on('click', function() {
-			$('.category-tab').removeClass('bg-surface-container-low text-primary font-semibold')
-				.addClass('text-on-surface-variant hover:bg-surface-container-high');
-			$(this).addClass('bg-surface-container-low text-primary font-semibold')
-				.removeClass('text-on-surface-variant hover:bg-surface-container-high');
+			$('.category-tab').removeClass('active-cat-tab text-slate-900 font-semibold').addClass('text-slate-600 font-medium');
+			$(this).addClass('active-cat-tab text-slate-900 font-semibold').removeClass('text-slate-600 font-medium');
 
 			activeCategoryFilter = $(this).data('category');
 			renderGrid();
@@ -245,8 +241,22 @@
 				}
 			}
 			$('#update-notification-banner').removeClass('hidden');
+
+			// Update Hero Status Widget
+			$('#hero-status-icon-wrap').removeClass('bg-emerald-50 text-emerald-600').addClass('bg-amber-50 text-amber-600');
+			$('#hero-status-icon').text('system_update');
+			$('#hero-status-title').text(updates + ' Güncelleme Mevcut');
+			$('#hero-status-sub').text('Eklenti/temalarınızı güncelleyin');
 		} else {
 			$('#update-notification-banner').addClass('hidden');
+
+			// Update Hero Status Widget
+			$('#hero-status-icon-wrap').removeClass('bg-amber-50 text-amber-600').addClass('bg-emerald-50 text-emerald-600');
+			$('#hero-status-icon').text('check_circle');
+			$('#hero-status-title').text('Sistem Güncel');
+			const selfItem = pluginsData.find(p => p.slug === 'gnn-wpdashboard');
+			const selfVer = selfItem && selfItem.installed_version ? selfItem.installed_version : '1.2.0';
+			$('#hero-status-sub').text('GNN Dashboard v' + selfVer);
 		}
 	}
 
@@ -305,107 +315,101 @@
 		const safeRepo = escapeHtml(item.repo);
 		const safeDesc = escapeHtml(item.description);
 		const safeIcon = escapeHtml(item.icon);
-		const safeBanner = escapeHtml(item.banner_class || 'bg-surface-container-high');
 		const safeRepoUrl = escapeHtml(item.repo_url);
 
-		let badgeHTML = safeDisplayVer ? `<span class="version-badge-pill">v${safeDisplayVer}</span>` : '';
-		let borderClass = 'border-outline-variant';
-		let statusBadge = '';
+		let borderClass = 'border-slate-200/80';
+		let versionHTML = '';
 
 		if (item.has_update) {
-			badgeHTML = `<span class="version-badge-pill version-update-glow">
-				<span class="material-symbols-outlined text-[13px]">arrow_upward</span> v${safeInstalledVer} ➔ v${safeLatestVer}
-			</span>`;
-			borderClass = 'border-2 border-amber-300';
-			statusBadge = `<span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2 py-0.5 rounded-full border border-amber-300">Güncelleme Var</span>`;
-		} else if (item.active) {
-			borderClass = 'border-emerald-300';
-			statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-300">
-				<span class="material-symbols-outlined text-[13px] font-bold">check_circle</span> Aktif
-			</span>`;
-		} else if (item.installed) {
-			statusBadge = `<span class="bg-gray-100 text-gray-700 text-[11px] font-bold px-2 py-0.5 rounded-full border border-gray-300">Pasif</span>`;
+			borderClass = 'border-amber-300 ring-2 ring-amber-300/40';
+			versionHTML = `
+				<span class="text-[11px] font-bold text-amber-600 flex items-center gap-0.5">
+					<span class="material-symbols-outlined text-xs">arrow_upward</span> v${safeInstalledVer} ➔ v${safeLatestVer}
+				</span>
+				<button data-slug="${safeSlug}" class="btn-open-details text-slate-400 hover:text-slate-700 text-[11px] text-left border-none bg-transparent cursor-pointer p-0 font-medium mt-0.5">
+					Detaylar
+				</button>
+			`;
+		} else {
+			versionHTML = `
+				<span class="text-xs text-slate-400 font-medium">Sürüm: ${safeDisplayVer}</span>
+				<button data-slug="${safeSlug}" class="btn-open-details text-slate-400 hover:text-slate-700 text-[11px] text-left border-none bg-transparent cursor-pointer p-0 font-medium mt-0.5">
+					Detaylar
+				</button>
+			`;
 		}
 
 		let actionButtonsHTML = '';
 		if (item.slug === 'gnn-wpdashboard') {
 			if (item.has_update) {
 				actionButtonsHTML = `
-					<button data-slug="${safeSlug}" class="btn-install-plugin bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 shadow-sm border-none cursor-pointer">
-						<span class="material-symbols-outlined text-sm">update</span> Güncelle (v${safeLatestVer})
+					<button data-slug="${safeSlug}" class="btn-install-plugin gnn-btn-action-install bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm border-none cursor-pointer active:scale-95">
+						<span class="material-symbols-outlined text-sm">upgrade</span> Güncelle
 					</button>
 				`;
 			} else {
 				actionButtonsHTML = `
-					<span class="text-xs text-gray-500 font-semibold flex items-center gap-1">
-						<span class="material-symbols-outlined text-sm text-emerald-600">verified</span> Sistem Paneli
+					<span class="gnn-btn-action-active bg-slate-100 text-slate-600 text-xs font-semibold px-3.5 py-1.5 rounded-lg flex items-center gap-1.5">
+						<span class="material-symbols-outlined text-xs text-emerald-600">verified</span> Sistem Paneli
 					</span>
 				`;
 			}
 		} else if (item.has_update) {
 			actionButtonsHTML = `
-				<button data-slug="${safeSlug}" class="btn-install-plugin bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 shadow-sm border-none cursor-pointer">
-					<span class="material-symbols-outlined text-sm">update</span> Güncelle (v${safeLatestVer})
+				<button data-slug="${safeSlug}" class="btn-install-plugin gnn-btn-action-install bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm border-none cursor-pointer active:scale-95">
+					<span class="material-symbols-outlined text-sm">upgrade</span> Güncelle
 				</button>
 			`;
 		} else if (item.active) {
 			actionButtonsHTML = `
-				<button data-file="${safeFile}" data-type="${safeType}" class="btn-deactivate-plugin bg-surface-container-high hover:bg-surface-variant text-on-surface px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border border-outline-variant flex items-center gap-1 cursor-pointer">
-					<span class="material-symbols-outlined text-sm text-gray-600">pause</span> Devre Dışı Bırak
+				<button data-file="${safeFile}" data-type="${safeType}" class="btn-deactivate-plugin gnn-btn-action-active bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all border border-slate-200/80 flex items-center gap-1.5 cursor-pointer" title="Devre Dışı Bırak">
+					<span class="material-symbols-outlined text-xs text-emerald-600">check</span> Aktif
 				</button>
 			`;
 		} else if (item.installed) {
 			actionButtonsHTML = `
-				<div class="flex items-center gap-2">
-					<button data-file="${safeFile}" data-type="${safeType}" class="btn-delete-plugin text-red-600 hover:text-red-800 font-semibold text-xs flex items-center gap-0.5 border-none bg-transparent cursor-pointer">
-						<span class="material-symbols-outlined text-sm">delete</span> Sil
+				<div class="flex items-center gap-1.5">
+					<button data-file="${safeFile}" data-type="${safeType}" class="btn-delete-plugin text-slate-400 hover:text-red-600 font-semibold text-xs flex items-center justify-center p-1.5 rounded-lg border-none bg-transparent cursor-pointer transition-colors" title="Kaldır / Sil">
+						<span class="material-symbols-outlined text-base">delete</span>
 					</button>
-					<button data-file="${safeFile}" data-type="${safeType}" class="btn-activate-plugin bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm flex items-center gap-1 border-none cursor-pointer">
-						<span class="material-symbols-outlined text-sm">play_arrow</span> Etkinleştir
+					<button data-file="${safeFile}" data-type="${safeType}" class="btn-activate-plugin bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm flex items-center gap-1 border-none cursor-pointer active:scale-95">
+						Etkinleştir
 					</button>
 				</div>
 			`;
 		} else {
 			actionButtonsHTML = `
-				<button data-slug="${safeSlug}" class="btn-install-plugin bg-primary hover:bg-primary-container text-on-primary px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm border-none cursor-pointer">
-					<span class="material-symbols-outlined text-base">download</span> Şimdi Kur
+				<button data-slug="${safeSlug}" class="btn-install-plugin gnn-btn-action-install bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm border-none cursor-pointer active:scale-95">
+					Şimdi Kur
 				</button>
 			`;
 		}
 
 		return `
-			<article class="plugin-card bg-surface-container-lowest rounded-xl border ${borderClass} overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col">
-				<div class="h-32 ${safeBanner} relative overflow-hidden flex items-center justify-center shadow-inner">
-					<span class="material-symbols-outlined text-6xl text-white/20 select-none">${safeIcon}</span>
-					
-					<div class="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
-						${badgeHTML}
-					</div>
-
-					<a href="${safeRepoUrl}" target="_blank" class="absolute top-3 right-3 bg-black/40 hover:bg-black/80 text-white p-1.5 rounded-full backdrop-blur-md transition-colors flex items-center justify-center text-white" title="GitHub Reposuna Git">
+			<article class="plugin-card gnn-modern-card bg-white rounded-2xl border ${borderClass} shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between p-6 relative">
+				<div class="flex items-center justify-between w-full mb-1">
+					<span class="gnn-card-star text-slate-300 hover:text-amber-400 cursor-pointer transition-colors material-symbols-outlined text-lg" title="Favorilere Ekle">star</span>
+					<a href="${safeRepoUrl}" target="_blank" class="gnn-card-github text-slate-400 hover:text-slate-800 transition-colors flex items-center justify-center p-1 rounded-lg hover:bg-slate-100" title="GitHub Deposu">
 						<span class="material-symbols-outlined text-base">code</span>
 					</a>
 				</div>
 
-				<div class="p-5 flex flex-col flex-grow relative">
-					<div class="gnn-card-icon-badge">
-						<span class="material-symbols-outlined">${safeIcon}</span>
+				<div class="gnn-card-center-brand flex flex-col items-center justify-center text-center my-3">
+					<div class="gnn-brand-icon-box gnn-icon-${safeSlug} w-16 h-16 rounded-2xl flex items-center justify-center mb-3 shadow-sm transition-transform hover:scale-105">
+						<span class="material-symbols-outlined text-3xl">${safeIcon}</span>
 					</div>
 
-					<div class="mt-3 flex-grow">
-						<div class="flex items-center justify-between">
-							<h3 class="text-lg font-bold text-on-surface m-0 mb-1">${safeName}</h3>
-							${statusBadge}
-						</div>
-						<p class="text-xs text-on-surface-variant m-0 mb-2 font-medium">${safeOwner}/${safeRepo}</p>
-						<p class="text-sm text-on-surface-variant line-clamp-2 leading-relaxed m-0">${safeDesc}</p>
+					<h3 class="text-base font-bold text-slate-900 m-0 text-center tracking-tight leading-snug">${safeName}</h3>
+					<p class="text-[11px] text-slate-400 font-medium m-0 mt-0.5">${safeOwner}/${safeRepo}</p>
+					<p class="text-xs text-slate-500 text-center line-clamp-2 leading-relaxed m-0 mt-2 h-9 overflow-hidden">${safeDesc}</p>
+				</div>
+
+				<div class="gnn-card-footer mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
+					<div class="flex flex-col">
+						${versionHTML}
 					</div>
 
-					<div class="mt-4 pt-3 border-t border-outline-variant flex items-center justify-between">
-						<button data-slug="${safeSlug}" class="btn-open-details text-primary font-semibold text-xs hover:underline flex items-center gap-0.5 border-none bg-transparent cursor-pointer">
-							Detaylar
-						</button>
-
+					<div>
 						${actionButtonsHTML}
 					</div>
 				</div>
