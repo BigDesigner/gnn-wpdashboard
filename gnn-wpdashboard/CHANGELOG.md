@@ -4,6 +4,13 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.2.3] - 2026-11-18
+
+### Added
+- `BigDesigner/gnn-logos` (**GNN Logos**) eklentisi `Medya & Dosya` kategorisi ve özel ikon/kapak stilleriyle eklenti kataloğuna eklendi
+
+---
+
 ## [1.2.2] - 2026-11-18
 
 ### Fixed & Improved
