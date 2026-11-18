@@ -269,6 +269,7 @@ Her kartın **benzersiz** geometrik deseni ve renk gradyanı olmalı:
 | 8 | GNN SMTP Mail | Emerald `#059669` | Diagonal Hatch |
 | 9 | GNN WPTheme | Indigo `#4f46e5` | Diamond Mesh |
 | 10 | GNN Dashboard | Deep Navy `#0f172a` | Cyber Matrix Grid |
+| 11 | GNN Logos | Fuchsia `#c026d3` | Dot & Diagonal Grid |
 
 ```css
 /* N. GNN Eklenti Adı - Benzersiz Geometrik Desen */

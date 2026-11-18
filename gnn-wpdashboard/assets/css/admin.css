@@ -210,6 +210,19 @@
 	color: #ffffff !important;
 }
 
+.gnn-wpdashboard-wrap .gnn-icon-gnn-logos {
+	background-color: #fae8ff !important;
+	color: #c026d3 !important;
+}
+
+/* 11. GNN Logos - Unique Geometric Banner Pattern */
+.plugin-banner-logos {
+	background:
+		radial-gradient(circle, rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px) 0 0/16px 16px,
+		repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.08) 0px, rgba(255, 255, 255, 0.08) 2px, transparent 2px, transparent 12px),
+		linear-gradient(135deg, #c026d3 0%, #a21caf 100%) !important;
+}
+
 /* Buttons Styling */
 .gnn-wpdashboard-wrap .gnn-btn-action-install {
 	background-color: #10b981 !important;

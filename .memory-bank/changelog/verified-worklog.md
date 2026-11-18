@@ -8,6 +8,7 @@
 - **Granular Capabilities & Link Safety:** Enforced `install_plugins`, `activate_plugins`, `delete_plugins`, `switch_themes`, `delete_themes` alongside `manage_options`; updated menu position to GNN standard `79.001`; added `rel="noopener noreferrer"` to all external links.
 - **Vanilla JS Migration & WCAG Accessibility:** Rewrote `admin.js` in dependency-free Vanilla JS (`fetch`), added `sanitizeSafeUrl()`, `.avif`/`.webp` media URL validation, toast notifications, `100dvh` modal viewport, `:focus-visible`, `ESC` close, and `role`/`aria-*` attributes.
 - **CI/CD Upgrade:** Updated `.github/workflows/release.yml` to `actions/checkout@v7`, `actions/upload-artifact@v7`, and `softprops/action-gh-release@v3`.
+- **New Plugin Registration (`gnn-logos`):** Added `BigDesigner/gnn-logos` (`GNN Logos`) under `Medya & Dosya` in `$default_repos` with `.gnn-icon-gnn-logos` and `.plugin-banner-logos` styles.
 
 ---
 

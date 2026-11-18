@@ -107,6 +107,17 @@ class GNN_WPDashboard_Installer {
 			'icon'         => 'mail',
 			'banner_class' => 'plugin-banner-smtpmail',
 		),
+		'gnn-logos'       => array(
+			'name'         => 'GNN Logos',
+			'type'         => 'plugin',
+			'owner'        => 'BigDesigner',
+			'repo'         => 'gnn-logos',
+			'file'         => 'gnn-logos/gnn-logos.php',
+			'category'     => 'Medya & Dosya',
+			'description'  => 'WordPress için ultra hafif logo ve sertifika vitrini; CSS Scroll-Snap karusel ve GPU destekli marquee sunar.',
+			'icon'         => 'view_carousel',
+			'banner_class' => 'plugin-banner-logos',
+		),
 		'gnn-wptheme'     => array(
 			'name'         => 'GNN WPTheme',
 			'type'         => 'theme',
