@@ -4,15 +4,15 @@
   "status": "ACTIVE",
   "mode": "Interactive",
   "preferred_language": "tr",
-  "timestamp": "2026-11-08T10:53:00+03:00",
+  "timestamp": "2026-11-18T07:52:00+03:00",
   "active_branch": "main",
-  "last_commit": "5e99bcd",
+  "last_commit": "b47e18e",
   "git_history_available": true,
   "worktree_status": "modified",
   "current_sprint": {
-    "sprint_id": "v1.2.1-release",
+    "sprint_id": "v1.2.2-audit-hardening",
     "active_tasks": [
-      "Released v1.2.1 with UX, filter and favorites polish"
+      "Released v1.2.2 with WP 7.0, security, Vanilla JS, WCAG and CI/CD upgrades"
     ]
   },
   "tracked_memory_areas": {

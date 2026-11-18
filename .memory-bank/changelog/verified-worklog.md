@@ -1,5 +1,16 @@
 # Verified Worklog & Audit History
 
+## Session: Comprehensive WP 7.0, Security & Vanilla JS Audit (v1.2.2) — 2026-11-18
+
+### Security, Standards & Modernization
+- **WP 7.0 & i18n Compliance:** Added `Requires at least: 6.7`, `Tested up to: 7.0`, `Requires PHP: 7.4` headers and `load_plugin_textdomain()` on `init` (priority 1). Recompiled `.pot`, `.po`, and binary `.mo` (51 entries, `0x950412de`).
+- **Updater & Installer Hardening:** Unified `$this->slug` (`gnn-wpdashboard`) and `$this->plugin_basename` in `GNN_WPDashboard_Updater`, added `post_install()` folder/reactivation guard, `sanitize_package_url()` (`esc_url_raw` + HTTPS + GitHub host allowlist), tag regex validation, and 5-minute negative caching.
+- **Granular Capabilities & Link Safety:** Enforced `install_plugins`, `activate_plugins`, `delete_plugins`, `switch_themes`, `delete_themes` alongside `manage_options`; updated menu position to GNN standard `79.001`; added `rel="noopener noreferrer"` to all external links.
+- **Vanilla JS Migration & WCAG Accessibility:** Rewrote `admin.js` in dependency-free Vanilla JS (`fetch`), added `sanitizeSafeUrl()`, `.avif`/`.webp` media URL validation, toast notifications, `100dvh` modal viewport, `:focus-visible`, `ESC` close, and `role`/`aria-*` attributes.
+- **CI/CD Upgrade:** Updated `.github/workflows/release.yml` to `actions/checkout@v7`, `actions/upload-artifact@v7`, and `softprops/action-gh-release@v3`.
+
+---
+
 ## Session: Modern SaaS UI Redesign (v1.2.0) — 2026-11-08
 
 ### UI/UX Modernization

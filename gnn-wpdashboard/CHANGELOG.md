@@ -4,6 +4,17 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.2.2] - 2026-11-18
+
+### Fixed & Improved
+- **WordPress 7.0 & PHP 7.4+ Uyumluluğu:** Eklenti başlığına `Requires at least: 6.7`, `Tested up to: 7.0`, `Requires PHP: 7.4` eklendi; `load_plugin_textdomain()` `init` (priority 1) kancasına bağlandı
+- **GNN Standardı & Updater:** Admin menü pozisyonu `79.001` olarak güncellendi; `GNN_WPDashboard_Updater` içinde `$slug` / `$plugin_basename` tutarlılığı sağlandı, `plugin_info()` uyumluluk alanları ve `post_install()` kancası eklendi
+- **Güvenlik:** Paket URL'leri için `esc_url_raw()` + trusted GitHub host doğrulaması, 5 dakikalık negatif cache, granüler yetki kontrolleri (`install_plugins`, `activate_plugins`, `delete_plugins`, `switch_themes`, `delete_themes`), `rel="noopener noreferrer"` ve JS `sanitizeSafeUrl()` koruması eklendi
+- **Modern Frontend & Erişilebilirlik:** `admin.js` jQuery bağımlılığından arındırılarak saf Vanilla JS (`fetch`) yapısına geçirildi; `.avif`/`.webp` medya URL desteği, non-blocking toast bildirimleri, `100dvh` modal viewport düzeltmesi, `:focus-visible` ve WCAG `role`/`aria-*`/`ESC` klavye desteği eklendi
+- **Çeviri & CI/CD:** `.pot`/`.po`/`.mo` dosyaları `1.2.2` ile senkronize edildi; `.github/workflows/release.yml` içindeki GitHub Actions sürümleri (`checkout@v7`, `upload-artifact@v7`, `action-gh-release@v3`) güncellendi
+
+---
+
 ## [1.2.1] - 2026-11-08
 
 ### Fixed
