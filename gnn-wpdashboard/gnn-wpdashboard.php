@@ -1,14 +1,17 @@
 <?php
 /**
- * Plugin Name: GNN WPDashboard
- * Plugin URI:  https://github.com/BigDesigner/gnn-wpdashboard
- * Description: Eklentilerinizi tek bir panelden kurmanıza, güncellemenize ve yönetmenize olanak tanır.
- * Version:     1.2.1
- * Author:      BigDesigner
- * Author URI:  https://github.com/BigDesigner
- * Text Domain: gnn-wpdashboard
- * Domain Path: /languages
- * License:     GPL-2.0+
+ * Plugin Name:       GNN WPDashboard
+ * Plugin URI:        https://github.com/BigDesigner/gnn-wpdashboard
+ * Description:       Eklentilerinizi tek bir panelden kurmanıza, güncellemenize ve yönetmenize olanak tanır.
+ * Version:           1.2.1
+ * Requires at least: 6.7
+ * Tested up to:      7.0
+ * Requires PHP:      7.4
+ * Author:            BigDesigner
+ * Author URI:        https://github.com/BigDesigner
+ * Text Domain:       gnn-wpdashboard
+ * Domain Path:       /languages
+ * License:           GPL-2.0+
  *
  * @package GNN_WPDashboard
  */
@@ -89,6 +92,7 @@ class GNN_WPDashboard {
 	 * Initialize hooks.
 	 */
 	private function init_hooks() {
+		add_action( 'init', array( $this, 'load_textdomain' ), 1 );
 		add_action( 'admin_menu', array( $this, 'register_admin_menu' ) );
 		add_filter( 'plugin_action_links', array( $this, 'add_plugin_action_links' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
@@ -107,10 +111,21 @@ class GNN_WPDashboard {
 	}
 
 	/**
-	 * Register Admin Menu right under Dashboard at position 3.888.
+	 * Load plugin textdomain on init (priority 1) for WP 6.7+ JIT compatibility.
+	 */
+	public function load_textdomain() {
+		load_plugin_textdomain(
+			'gnn-wpdashboard',
+			false,
+			dirname( plugin_basename( GNN_WPDASHBOARD_FILE ) ) . '/languages'
+		);
+	}
+
+	/**
+	 * Register Admin Menu at GNN standard position 79.001.
 	 */
 	public function register_admin_menu() {
-		// Menü Pozisyonu: 3.888 (Çakışmasız benzersiz pozisyon - Başlangıç / Dashboard menüsünün hemen altı)
+		// Menü Pozisyonu: 79.001 (GNN eklenti standardı 79.XXX aralığı)
 		add_menu_page(
 			__( 'GNN Dashboard', 'gnn-wpdashboard' ),
 			'GNN Dashboard',
@@ -118,7 +133,7 @@ class GNN_WPDashboard {
 			'wpdashboard-settings',
 			array( $this, 'render_dashboard_page' ),
 			'dashicons-grid-view',
-			'3.888'
+			'79.001'
 		);
 	}
 
@@ -131,7 +146,7 @@ class GNN_WPDashboard {
 	 */
 	public function add_plugin_action_links( $links, $file ) {
 		if ( $file === plugin_basename( GNN_WPDASHBOARD_FILE ) ) {
-			$donate_link = '<a href="https://buymeacoffee.com/bigdesigner" target="_blank" style="font-weight:bold; color:#d63638;">'
+			$donate_link = '<a href="' . esc_url( 'https://buymeacoffee.com/bigdesigner' ) . '" target="_blank" rel="noopener noreferrer" style="font-weight:bold; color:#d63638;">'
 				. esc_html__( 'Donate', 'gnn-wpdashboard' ) . '</a>';
 
 			$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=wpdashboard-settings' ) ) . '">'
@@ -160,7 +175,7 @@ class GNN_WPDashboard {
 		wp_enqueue_script( 'tailwind-cdn', 'https://cdn.tailwindcss.com?plugins=forms,container-queries', array(), null, false );
 
 		wp_enqueue_style( 'gnn-wpdashboard-admin-style', GNN_WPDASHBOARD_URL . 'assets/css/admin.css', array(), GNN_WPDASHBOARD_VERSION );
-		wp_enqueue_script( 'gnn-wpdashboard-admin-script', GNN_WPDASHBOARD_URL . 'assets/js/admin.js', array( 'jquery' ), GNN_WPDASHBOARD_VERSION, true );
+		wp_enqueue_script( 'gnn-wpdashboard-admin-script', GNN_WPDASHBOARD_URL . 'assets/js/admin.js', array(), GNN_WPDASHBOARD_VERSION, true );
 
 		wp_localize_script(
 			'gnn-wpdashboard-admin-script',
@@ -215,7 +230,7 @@ class GNN_WPDashboard {
 	public function ajax_install_plugin() {
 		check_ajax_referer( 'gnn_wpdashboard_nonce', 'nonce' );
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'install_plugins' ) ) {
 			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
 		}
 
@@ -238,15 +253,17 @@ class GNN_WPDashboard {
 	public function ajax_activate_plugin() {
 		check_ajax_referer( 'gnn_wpdashboard_nonce', 'nonce' );
 
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
-		}
-
 		$file = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
 		$type = isset( $_POST['type'] ) ? sanitize_text_field( wp_unslash( $_POST['type'] ) ) : 'plugin';
 		if ( ! in_array( $type, array( 'plugin', 'theme' ), true ) ) {
 			$type = 'plugin';
 		}
+
+		$required_cap = ( 'theme' === $type ) ? 'switch_themes' : 'activate_plugins';
+		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( $required_cap ) ) {
+			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
+		}
+
 		if ( empty( $file ) ) {
 			wp_send_json_error( __( 'Dosya veya slug belirtilmedi.', 'gnn-wpdashboard' ) );
 		}
@@ -265,7 +282,7 @@ class GNN_WPDashboard {
 	public function ajax_deactivate_plugin() {
 		check_ajax_referer( 'gnn_wpdashboard_nonce', 'nonce' );
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'activate_plugins' ) ) {
 			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
 		}
 
@@ -288,15 +305,17 @@ class GNN_WPDashboard {
 	public function ajax_delete_plugin() {
 		check_ajax_referer( 'gnn_wpdashboard_nonce', 'nonce' );
 
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
-		}
-
 		$file = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
 		$type = isset( $_POST['type'] ) ? sanitize_text_field( wp_unslash( $_POST['type'] ) ) : 'plugin';
 		if ( ! in_array( $type, array( 'plugin', 'theme' ), true ) ) {
 			$type = 'plugin';
 		}
+
+		$required_cap = ( 'theme' === $type ) ? 'delete_themes' : 'delete_plugins';
+		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( $required_cap ) ) {
+			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
+		}
+
 		if ( empty( $file ) ) {
 			wp_send_json_error( __( 'Dosya veya slug belirtilmedi.', 'gnn-wpdashboard' ) );
 		}
@@ -314,7 +333,7 @@ class GNN_WPDashboard {
 	 */
 	public function ajax_bulk_install() {
 		check_ajax_referer( 'gnn_wpdashboard_nonce', 'nonce' );
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'install_plugins' ) ) {
 			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
 		}
 
@@ -330,7 +349,7 @@ class GNN_WPDashboard {
 	 */
 	public function ajax_bulk_activate() {
 		check_ajax_referer( 'gnn_wpdashboard_nonce', 'nonce' );
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'activate_plugins' ) ) {
 			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
 		}
 
@@ -346,7 +365,7 @@ class GNN_WPDashboard {
 	 */
 	public function ajax_bulk_deactivate() {
 		check_ajax_referer( 'gnn_wpdashboard_nonce', 'nonce' );
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'activate_plugins' ) ) {
 			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
 		}
 
@@ -362,7 +381,7 @@ class GNN_WPDashboard {
 	 */
 	public function ajax_bulk_delete() {
 		check_ajax_referer( 'gnn_wpdashboard_nonce', 'nonce' );
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'delete_plugins' ) ) {
 			wp_send_json_error( __( 'Yetkisiz erişim.', 'gnn-wpdashboard' ) );
 		}
 

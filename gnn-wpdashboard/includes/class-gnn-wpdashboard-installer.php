@@ -404,7 +404,7 @@ class GNN_WPDashboard_Installer {
 		$transient_key = 'gnn_wpdash_rel_' . md5( $owner . '_' . $repo );
 		$cached        = get_transient( $transient_key );
 		if ( false !== $cached && is_array( $cached ) ) {
-			return $cached;
+			return ! empty( $cached['error'] ) ? false : $cached;
 		}
 
 		$url      = 'https://api.github.com/repos/' . $owner . '/' . $repo . '/releases/latest';
@@ -421,7 +421,7 @@ class GNN_WPDashboard_Installer {
 
 		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
 			$data = json_decode( wp_remote_retrieve_body( $response ), true );
-			if ( is_array( $data ) && ! empty( $data['tag_name'] ) ) {
+			if ( is_array( $data ) && ! empty( $data['tag_name'] ) && preg_match( '/^v?[0-9]+(\.[0-9]+)*([\-+][a-zA-Z0-9\.\-]+)?$/', $data['tag_name'] ) ) {
 				set_transient( $transient_key, $data, 6 * HOUR_IN_SECONDS );
 				return $data;
 			}
@@ -429,7 +429,7 @@ class GNN_WPDashboard_Installer {
 
 		// When API is rate-limited (403) or unreachable, resolve the tag via redirect and cache for 1 hour.
 		$fallback_tag = $this->fetch_latest_tag_fallback( $owner, $repo );
-		if ( ! empty( $fallback_tag ) ) {
+		if ( ! empty( $fallback_tag ) && preg_match( '/^v?[0-9]+(\.[0-9]+)*([\-+][a-zA-Z0-9\.\-]+)?$/', $fallback_tag ) ) {
 			$fallback_data = array(
 				'tag_name' => $fallback_tag,
 				'body'     => '',
@@ -439,6 +439,8 @@ class GNN_WPDashboard_Installer {
 			return $fallback_data;
 		}
 
+		// Short negative cache (5 min) to avoid repeated blocking HTTP calls on transient failures.
+		set_transient( $transient_key, array( 'error' => true ), 5 * MINUTE_IN_SECONDS );
 		return false;
 	}
 
@@ -497,7 +499,10 @@ class GNN_WPDashboard_Installer {
 		if ( is_array( $release ) && ! empty( $release['assets'] ) ) {
 			foreach ( $release['assets'] as $asset ) {
 				if ( ! empty( $asset['name'] ) && substr( $asset['name'], -4 ) === '.zip' && ! empty( $asset['browser_download_url'] ) ) {
-					return $asset['browser_download_url'];
+					$sanitized = $this->sanitize_package_url( $asset['browser_download_url'] );
+					if ( $sanitized ) {
+						return $sanitized;
+					}
 				}
 			}
 		}
@@ -519,12 +524,40 @@ class GNN_WPDashboard_Installer {
 		// discovered rather than guessed. Needs no API call, so rate limits do not apply.
 		$asset_url = $this->fetch_release_asset_url( $owner, $repo, $tag );
 		if ( $asset_url ) {
-			return $asset_url;
+			$sanitized = $this->sanitize_package_url( $asset_url );
+			if ( $sanitized ) {
+				return $sanitized;
+			}
 		}
 
 		// Priority 3: Source archive. Only valid when the plugin lives at the repository
 		// root — fix_source_folder_name() descends into the package folder otherwise.
-		return 'https://github.com/' . $owner . '/' . $repo . '/archive/refs/tags/' . $tag . '.zip';
+		return $this->sanitize_package_url( 'https://github.com/' . $owner . '/' . $repo . '/archive/refs/tags/' . rawurlencode( $tag ) . '.zip' );
+	}
+
+	/**
+	 * Validate and sanitize package download URL against trusted GitHub hosts.
+	 *
+	 * @param string $url Raw package URL.
+	 * @return string|false Sanitized HTTPS URL or false.
+	 */
+	private function sanitize_package_url( $url ) {
+		$clean_url = esc_url_raw( $url, array( 'https' ) );
+		if ( empty( $clean_url ) ) {
+			return false;
+		}
+
+		$parsed = wp_parse_url( $clean_url );
+		if ( empty( $parsed['scheme'] ) || 'https' !== strtolower( $parsed['scheme'] ) || empty( $parsed['host'] ) ) {
+			return false;
+		}
+
+		$host = strtolower( $parsed['host'] );
+		if ( 'github.com' === $host || substr( $host, -18 ) === '.githubusercontent.com' ) {
+			return $clean_url;
+		}
+
+		return false;
 	}
 
 	/**

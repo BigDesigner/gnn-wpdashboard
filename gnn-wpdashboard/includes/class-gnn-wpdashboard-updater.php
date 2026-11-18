@@ -21,11 +21,18 @@ class GNN_WPDashboard_Updater {
 	private $file;
 
 	/**
-	 * Plugin slug.
+	 * Plugin basename (e.g. gnn-wpdashboard/gnn-wpdashboard.php).
 	 *
 	 * @var string
 	 */
-	private $slug;
+	private $plugin_basename;
+
+	/**
+	 * Plugin slug (directory/identifier).
+	 *
+	 * @var string
+	 */
+	private $slug = 'gnn-wpdashboard';
 
 	/**
 	 * Current version.
@@ -55,12 +62,13 @@ class GNN_WPDashboard_Updater {
 	 * @param string $version Current version.
 	 */
 	public function __construct( $file, $version ) {
-		$this->file    = $file;
-		$this->slug    = plugin_basename( $file );
-		$this->version = $version;
+		$this->file            = $file;
+		$this->plugin_basename = plugin_basename( $file );
+		$this->version         = $version;
 
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'check_update' ) );
-		add_filter( 'plugins_api', array( $this, 'plugins_api' ), 10, 3 );
+		add_filter( 'plugins_api', array( $this, 'plugin_info' ), 10, 3 );
+		add_filter( 'upgrader_post_install', array( $this, 'post_install' ), 10, 3 );
 		add_action( 'admin_init', array( $this, 'handle_manual_check' ) );
 	}
 
@@ -99,21 +107,24 @@ class GNN_WPDashboard_Updater {
 		$remote_version = preg_replace( '/^v/i', '', $release['tag_name'] );
 
 		if ( version_compare( $this->version, $remote_version, '<' ) ) {
-			$download_url = $this->get_zip_asset_url( $release );
+			$download_url = $this->get_package_url( $release );
 
 			if ( $download_url ) {
 				$res              = new stdClass();
-				$res->slug        = 'gnn-wpdashboard';
-				$res->plugin      = $this->slug;
+				$res->slug        = $this->slug;
+				$res->plugin      = $this->plugin_basename;
 				$res->new_version = $remote_version;
 				$res->url         = 'https://github.com/' . $this->owner . '/' . $this->repo;
 				$res->package     = $download_url;
+				$res->requires    = '6.7';
+				$res->tested      = '7.0';
+				$res->requires_php = '7.4';
 
 				if ( empty( $transient->response ) || ! is_array( $transient->response ) ) {
 					$transient->response = array();
 				}
 
-				$transient->response[ $this->slug ] = $res;
+				$transient->response[ $this->plugin_basename ] = $res;
 			}
 		}
 
@@ -128,8 +139,8 @@ class GNN_WPDashboard_Updater {
 	 * @param object      $args   Arguments.
 	 * @return object|bool
 	 */
-	public function plugins_api( $result, $action, $args ) {
-		if ( 'plugin_information' !== $action || empty( $args->slug ) || $args->slug !== 'gnn-wpdashboard' ) {
+	public function plugin_info( $result, $action, $args ) {
+		if ( 'plugin_information' !== $action || empty( $args->slug ) || $args->slug !== $this->slug ) {
 			return $result;
 		}
 
@@ -139,32 +150,71 @@ class GNN_WPDashboard_Updater {
 		}
 
 		$remote_version = preg_replace( '/^v/i', '', $release['tag_name'] );
-		$download_url   = $this->get_zip_asset_url( $release );
+		$download_url   = $this->get_package_url( $release );
 
 		$res                = new stdClass();
 		$res->name          = 'GNN WPDashboard';
-		$res->slug          = 'gnn-wpdashboard';
+		$res->slug          = $this->slug;
 		$res->version       = $remote_version;
-		$res->author        = '<a href="https://github.com/BigDesigner">BigDesigner</a>';
+		$res->author        = '<a href="https://github.com/BigDesigner" target="_blank" rel="noopener noreferrer">BigDesigner</a>';
 		$res->homepage      = 'https://github.com/' . $this->owner . '/' . $this->repo;
-		$res->download_link = $download_url;
+		$res->requires      = '6.7';
+		$res->tested        = '7.0';
+		$res->requires_php  = '7.4';
+		$res->download_link = $download_url ? $download_url : '';
 		$res->sections      = array(
 			'description' => 'WordPress eklentilerinizi GitHub depoları üzerinden tek bir panelden kurmanıza, güncellemenize ve yönetmenize olanak tanır.',
-			'changelog'   => ! empty( $release['body'] ) ? esc_html( $release['body'] ) : 'Yeni sürüm yayınlandı.',
+			'changelog'   => ! empty( $release['body'] ) ? nl2br( esc_html( $release['body'] ) ) : 'Yeni sürüm yayınlandı.',
 		);
 
 		return $res;
 	}
 
 	/**
-	 * Fetch latest release from GitHub API with 12-hour transient cache and redirect fallback.
+	 * Ensure proper destination folder name and re-activation after WP core update.
 	 *
-	 * @return array|bool Release data or false.
+	 * @param bool|WP_Error $response   Installation response.
+	 * @param array         $hook_extra Extra arguments passed to hooked filters.
+	 * @param array         $result     Installation result data.
+	 * @return bool|WP_Error
+	 */
+	public function post_install( $response, $hook_extra, $result ) {
+		if ( empty( $hook_extra['plugin'] ) || $hook_extra['plugin'] !== $this->plugin_basename ) {
+			return $response;
+		}
+
+		global $wp_filesystem;
+		if ( ! $wp_filesystem || empty( $result['destination'] ) ) {
+			return $response;
+		}
+
+		$proper_destination = trailingslashit( WP_PLUGIN_DIR ) . $this->slug;
+		$current_dest       = untrailingslashit( $result['destination'] );
+
+		if ( $current_dest !== untrailingslashit( $proper_destination ) && $wp_filesystem->exists( $current_dest ) ) {
+			if ( $wp_filesystem->move( $current_dest, $proper_destination, true ) ) {
+				$result['destination'] = $proper_destination;
+			}
+		}
+
+		if ( is_plugin_active( $this->plugin_basename ) ) {
+			activate_plugin( $this->plugin_basename );
+		}
+
+		delete_transient( 'gnn_wpdashboard_github_release' );
+
+		return $response;
+	}
+
+	/**
+	 * Fetch latest release from GitHub API with transient cache, validation, and negative cache.
+	 *
+	 * @return array|false Release data or false.
 	 */
 	private function get_latest_release() {
 		$cached = get_transient( 'gnn_wpdashboard_github_release' );
 		if ( false !== $cached && is_array( $cached ) ) {
-			return $cached;
+			return ! empty( $cached['error'] ) ? false : $cached;
 		}
 
 		$url      = 'https://api.github.com/repos/' . $this->owner . '/' . $this->repo . '/releases/latest';
@@ -181,7 +231,7 @@ class GNN_WPDashboard_Updater {
 
 		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
 			$data = json_decode( wp_remote_retrieve_body( $response ), true );
-			if ( is_array( $data ) && ! empty( $data['tag_name'] ) ) {
+			if ( is_array( $data ) && ! empty( $data['tag_name'] ) && $this->is_valid_tag( $data['tag_name'] ) ) {
 				set_transient( 'gnn_wpdashboard_github_release', $data, 12 * HOUR_IN_SECONDS );
 				return $data;
 			}
@@ -189,7 +239,7 @@ class GNN_WPDashboard_Updater {
 
 		// Fallback to /releases/latest HTTP 302 Location header when GitHub API returns 403 Rate Limit.
 		$fallback_tag = $this->fetch_latest_tag_fallback();
-		if ( ! empty( $fallback_tag ) ) {
+		if ( ! empty( $fallback_tag ) && $this->is_valid_tag( $fallback_tag ) ) {
 			$fallback_data = array(
 				'tag_name' => $fallback_tag,
 				'assets'   => array(),
@@ -199,7 +249,19 @@ class GNN_WPDashboard_Updater {
 			return $fallback_data;
 		}
 
+		// Short negative cache (5 min) to prevent hammering GitHub on repeated page loads.
+		set_transient( 'gnn_wpdashboard_github_release', array( 'error' => true ), 5 * MINUTE_IN_SECONDS );
 		return false;
+	}
+
+	/**
+	 * Validate semantic version / release tag format.
+	 *
+	 * @param string $tag Tag name.
+	 * @return bool
+	 */
+	private function is_valid_tag( $tag ) {
+		return is_string( $tag ) && (bool) preg_match( '/^v?[0-9]+(\.[0-9]+)*([\-+][a-zA-Z0-9\.\-]+)?$/', $tag );
 	}
 
 	/**
@@ -231,17 +293,20 @@ class GNN_WPDashboard_Updater {
 	}
 
 	/**
-	 * Extract .zip asset download URL from release assets array.
+	 * Extract and sanitize .zip asset download URL from release assets array.
 	 * Strictly avoids GitHub's auto-generated zipball_url per GNN Standards.
 	 *
 	 * @param array $release Release payload.
-	 * @return string|false Asset URL or false.
+	 * @return string|false Sanitized asset URL or false.
 	 */
-	private function get_zip_asset_url( $release ) {
+	private function get_package_url( $release ) {
 		if ( ! empty( $release['assets'] ) && is_array( $release['assets'] ) ) {
 			foreach ( $release['assets'] as $asset ) {
 				if ( ! empty( $asset['name'] ) && substr( $asset['name'], -4 ) === '.zip' && ! empty( $asset['browser_download_url'] ) ) {
-					return $asset['browser_download_url'];
+					$sanitized = $this->sanitize_package_url( $asset['browser_download_url'] );
+					if ( $sanitized ) {
+						return $sanitized;
+					}
 				}
 			}
 		}
@@ -253,6 +318,31 @@ class GNN_WPDashboard_Updater {
 			if ( $asset_url ) {
 				return $asset_url;
 			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Validate and sanitize package download URL against trusted GitHub hosts.
+	 *
+	 * @param string $url Raw package URL.
+	 * @return string|false Sanitized HTTPS URL or false.
+	 */
+	private function sanitize_package_url( $url ) {
+		$clean_url = esc_url_raw( $url, array( 'https' ) );
+		if ( empty( $clean_url ) ) {
+			return false;
+		}
+
+		$parsed = wp_parse_url( $clean_url );
+		if ( empty( $parsed['scheme'] ) || 'https' !== strtolower( $parsed['scheme'] ) || empty( $parsed['host'] ) ) {
+			return false;
+		}
+
+		$host = strtolower( $parsed['host'] );
+		if ( 'github.com' === $host || substr( $host, -18 ) === '.githubusercontent.com' ) {
+			return $clean_url;
 		}
 
 		return false;
@@ -274,7 +364,7 @@ class GNN_WPDashboard_Updater {
 
 		$pattern = '#/' . preg_quote( $this->owner, '#' ) . '/' . preg_quote( $this->repo, '#' ) . '/releases/download/[^"\'\s]+\.zip#i';
 		if ( preg_match( $pattern, wp_remote_retrieve_body( $response ), $m ) ) {
-			return 'https://github.com' . $m[0];
+			return $this->sanitize_package_url( 'https://github.com' . $m[0] );
 		}
 
 		return false;

@@ -26,29 +26,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 
 			<!-- Category Tabs (Horizontal Top Navigation) -->
-			<div class="gnn-nav-tabs flex items-center gap-1.5 overflow-x-auto w-full lg:w-auto pb-1 lg:pb-0 scrollbar-none">
-				<button data-category="all" class="category-tab active-cat-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border-none cursor-pointer">
-					<span class="material-symbols-outlined text-base">apps</span>
+			<div class="gnn-nav-tabs flex items-center gap-1.5 overflow-x-auto w-full lg:w-auto pb-1 lg:pb-0 scrollbar-none" role="tablist" aria-label="<?php esc_attr_e( 'Kategori Filtreleri', 'gnn-wpdashboard' ); ?>">
+				<button type="button" role="tab" aria-selected="true" data-category="all" class="category-tab active-cat-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border-none cursor-pointer">
+					<span class="material-symbols-outlined text-base" aria-hidden="true">apps</span>
 					<span><?php esc_html_e( 'Tümü', 'gnn-wpdashboard' ); ?></span>
 				</button>
-				<button data-category="SEO & Pazarlama" class="category-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all border-none cursor-pointer">
-					<span class="material-symbols-outlined text-base">search_check</span>
+				<button type="button" role="tab" aria-selected="false" data-category="SEO & Pazarlama" class="category-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all border-none cursor-pointer">
+					<span class="material-symbols-outlined text-base" aria-hidden="true">search_check</span>
 					<span>SEO & Pazarlama</span>
 				</button>
-				<button data-category="Güvenlik & Analiz" class="category-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all border-none cursor-pointer">
-					<span class="material-symbols-outlined text-base">shield</span>
+				<button type="button" role="tab" aria-selected="false" data-category="Güvenlik & Analiz" class="category-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all border-none cursor-pointer">
+					<span class="material-symbols-outlined text-base" aria-hidden="true">shield</span>
 					<span>Güvenlik & Analiz</span>
 				</button>
-				<button data-category="Medya & Dosya" class="category-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all border-none cursor-pointer">
-					<span class="material-symbols-outlined text-base">folder_zip</span>
+				<button type="button" role="tab" aria-selected="false" data-category="Medya & Dosya" class="category-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all border-none cursor-pointer">
+					<span class="material-symbols-outlined text-base" aria-hidden="true">folder_zip</span>
 					<span>Medya & Dosya</span>
 				</button>
-				<button data-category="Araçlar & Network" class="category-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all border-none cursor-pointer">
-					<span class="material-symbols-outlined text-base">travel_explore</span>
+				<button type="button" role="tab" aria-selected="false" data-category="Araçlar & Network" class="category-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all border-none cursor-pointer">
+					<span class="material-symbols-outlined text-base" aria-hidden="true">travel_explore</span>
 					<span>Araçlar & Network</span>
 				</button>
-				<button data-category="Temalar" class="category-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all border-none cursor-pointer">
-					<span class="material-symbols-outlined text-base">palette</span>
+				<button type="button" role="tab" aria-selected="false" data-category="Temalar" class="category-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all border-none cursor-pointer">
+					<span class="material-symbols-outlined text-base" aria-hidden="true">palette</span>
 					<span>Temalar</span>
 				</button>
 			</div>
@@ -111,51 +111,51 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<!-- Update Available Notification Banner -->
-		<div id="update-notification-banner" class="hidden bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-4 flex items-center justify-between shadow-sm cursor-pointer hover:bg-amber-100/80 transition-colors" title="<?php esc_attr_e( 'Güncellemeleri filtrele', 'gnn-wpdashboard' ); ?>">
+		<div id="update-notification-banner" role="button" tabindex="0" class="hidden bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-4 flex items-center justify-between shadow-sm cursor-pointer hover:bg-amber-100/80 transition-colors" title="<?php esc_attr_e( 'Güncellemeleri filtrele', 'gnn-wpdashboard' ); ?>">
 			<div class="flex items-center gap-3">
 				<div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-					<span class="material-symbols-outlined text-xl">system_update</span>
+					<span class="material-symbols-outlined text-xl" aria-hidden="true">system_update</span>
 				</div>
 				<div>
 					<h4 id="update-notification-title" class="font-bold text-sm m-0"><?php esc_html_e( 'Güncelleme Mevcut', 'gnn-wpdashboard' ); ?></h4>
 					<p id="update-notification-text" class="text-xs text-amber-800 m-0 font-medium"></p>
 				</div>
 			</div>
-			<span class="material-symbols-outlined text-amber-700 text-lg">chevron_right</span>
+			<span class="material-symbols-outlined text-amber-700 text-lg" aria-hidden="true">chevron_right</span>
 		</div>
 
 		<!-- 4. Filter Toolbar: Status Segmented Control + Search Box -->
 		<div class="gnn-filter-toolbar bg-white border border-slate-200/80 rounded-2xl p-3 shadow-sm flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3">
 			
 			<!-- Status Filter Segmented Control -->
-			<div class="gnn-status-segmented flex items-center gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-				<button data-status="all" class="status-tab active-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border-none cursor-pointer">
+			<div class="gnn-status-segmented flex items-center gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none" role="tablist" aria-label="<?php esc_attr_e( 'Durum Filtreleri', 'gnn-wpdashboard' ); ?>">
+				<button type="button" role="tab" aria-selected="true" data-status="all" class="status-tab active-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border-none cursor-pointer">
 					<span><?php esc_html_e( 'Tümü', 'gnn-wpdashboard' ); ?></span>
 					<span id="count-all" class="counter-badge bg-slate-100 text-slate-700 text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
 				</button>
 
-				<button data-status="uninstalled" class="status-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all border-none cursor-pointer">
+				<button type="button" role="tab" aria-selected="false" data-status="uninstalled" class="status-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all border-none cursor-pointer">
 					<span><?php esc_html_e( 'Hazır', 'gnn-wpdashboard' ); ?></span>
 					<span id="count-uninstalled" class="counter-badge bg-slate-100 text-slate-600 text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
 				</button>
 
-				<button data-status="active" class="status-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all border-none cursor-pointer">
+				<button type="button" role="tab" aria-selected="false" data-status="active" class="status-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all border-none cursor-pointer">
 					<span><?php esc_html_e( 'Aktif', 'gnn-wpdashboard' ); ?></span>
 					<span id="count-active" class="counter-badge bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
 				</button>
 
-				<button data-status="inactive" class="status-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all border-none cursor-pointer">
+				<button type="button" role="tab" aria-selected="false" data-status="inactive" class="status-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all border-none cursor-pointer">
 					<span><?php esc_html_e( 'Pasif', 'gnn-wpdashboard' ); ?></span>
 					<span id="count-inactive" class="counter-badge bg-slate-100 text-slate-600 text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
 				</button>
 
-				<button data-status="updates" class="status-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all border-none cursor-pointer">
+				<button type="button" role="tab" aria-selected="false" data-status="updates" class="status-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all border-none cursor-pointer">
 					<span><?php esc_html_e( 'Güncelleme', 'gnn-wpdashboard' ); ?></span>
 					<span id="count-updates" class="counter-badge bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
 				</button>
 
-				<button data-status="favorites" class="status-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all border-none cursor-pointer">
-					<span class="material-symbols-outlined text-xs text-amber-500">star</span>
+				<button type="button" role="tab" aria-selected="false" data-status="favorites" class="status-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all border-none cursor-pointer">
+					<span class="material-symbols-outlined text-xs text-amber-500" aria-hidden="true">star</span>
 					<span><?php esc_html_e( 'Favoriler', 'gnn-wpdashboard' ); ?></span>
 					<span id="count-favorites" class="counter-badge bg-amber-50 text-amber-800 text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
 				</button>
@@ -164,11 +164,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<!-- Search & Mobile Refresh -->
 			<div class="flex items-center gap-2">
 				<div class="search-box-container flex-grow md:w-64">
-					<span class="material-symbols-outlined search-icon text-base">search</span>
-					<input class="bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-slate-900 focus:bg-white w-full transition-all" id="search-input" placeholder="<?php esc_attr_e( 'Eklentilerde ara...', 'gnn-wpdashboard' ); ?>" type="text"/>
+					<span class="material-symbols-outlined search-icon text-base" aria-hidden="true">search</span>
+					<input class="bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-slate-900 focus:bg-white w-full transition-all" id="search-input" aria-label="<?php esc_attr_e( 'Eklentilerde ara', 'gnn-wpdashboard' ); ?>" placeholder="<?php esc_attr_e( 'Eklentilerde ara...', 'gnn-wpdashboard' ); ?>" type="text"/>
 				</div>
-				<button class="lg:hidden bg-slate-900 text-white p-2.5 rounded-xl border-none cursor-pointer flex items-center justify-center" onclick="jQuery('#btn-sync-plugins').trigger('click');">
-					<span class="material-symbols-outlined text-base">refresh</span>
+				<button type="button" id="btn-sync-plugins-mobile" class="lg:hidden bg-slate-900 text-white p-2.5 rounded-xl border-none cursor-pointer flex items-center justify-center" aria-label="<?php esc_attr_e( 'Güncellemeleri Kontrol Et', 'gnn-wpdashboard' ); ?>">
+					<span class="material-symbols-outlined text-base" aria-hidden="true">refresh</span>
 				</button>
 			</div>
 		</div>
@@ -206,11 +206,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<!-- 7. Dashboard Footer -->
 		<footer class="mt-8 pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500 font-medium">
 			<div>
-				<span>© <?php echo esc_html( date( 'Y' ) ); ?> GNN Ecosystem. All rights reserved.</span>
+				<span>© <?php echo esc_html( gmdate( 'Y' ) ); ?> GNN Ecosystem. All rights reserved.</span>
 			</div>
 			<div class="flex items-center gap-4">
-				<a href="https://github.com/BigDesigner" target="_blank" class="text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1 no-underline">
-					<span class="material-symbols-outlined text-sm">code</span> GitHub
+				<a href="https://github.com/BigDesigner" target="_blank" rel="noopener noreferrer" class="text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1 no-underline">
+					<span class="material-symbols-outlined text-sm" aria-hidden="true">code</span> GitHub
 				</a>
 				<span class="text-slate-300">•</span>
 				<span class="text-slate-400">GNN WPDashboard v<?php echo esc_html( GNN_WPDASHBOARD_VERSION ); ?></span>
@@ -220,21 +220,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 </div>
 
+<!-- Toast Notification Region -->
+<div id="gnn-toast-container" class="gnn-toast-container" aria-live="polite" aria-atomic="true"></div>
+
 <!-- Plugin Details Modal -->
-<div id="details-modal" class="hidden">
+<div id="details-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
 	<div class="gnn-modal-content">
 		<div class="gnn-modal-header">
 			<div class="flex items-center gap-3">
 				<div class="gnn-modal-icon-badge">
-					<span class="material-symbols-outlined" id="modal-icon">extension</span>
+					<span class="material-symbols-outlined" id="modal-icon" aria-hidden="true">extension</span>
 				</div>
 				<div>
 					<h3 id="modal-title" class="gnn-modal-title"></h3>
 					<p id="modal-sub" class="gnn-modal-sub"></p>
 				</div>
 			</div>
-			<button id="btn-close-modal" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-lg border-none bg-transparent cursor-pointer flex items-center justify-center">
-				<span class="material-symbols-outlined text-xl">close</span>
+			<button type="button" id="btn-close-modal" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-lg border-none bg-transparent cursor-pointer flex items-center justify-center" aria-label="<?php esc_attr_e( 'Kapat', 'gnn-wpdashboard' ); ?>">
+				<span class="material-symbols-outlined text-xl" aria-hidden="true">close</span>
 			</button>
 		</div>
 
@@ -250,10 +253,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<!-- Footer Actions -->
 		<div class="gnn-modal-footer">
-			<a id="modal-repo-link" href="#" target="_blank" class="text-xs text-primary font-semibold hover:underline flex items-center gap-1">
-				<span class="material-symbols-outlined text-sm">open_in_new</span> GitHub Repository
+			<a id="modal-repo-link" href="#" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-semibold hover:underline flex items-center gap-1">
+				<span class="material-symbols-outlined text-sm" aria-hidden="true">open_in_new</span> GitHub Repository
 			</a>
-			<button id="btn-close-modal-bottom" class="gnn-modal-close-btn">
+			<button type="button" id="btn-close-modal-bottom" class="gnn-modal-close-btn">
 				<?php esc_html_e( 'Kapat', 'gnn-wpdashboard' ); ?>
 			</button>
 		</div>
