@@ -1,5 +1,16 @@
 # Verified Worklog & Audit History
 
+## Session: Audit Follow-Up & Bugfix Release (v1.2.4) — 2026-11-20
+
+### Critical & Important Fixes
+- **Package URL Host Validation Fix:** Fixed `substr( $host, -18 ) === '.githubusercontent.com'` length mismatch (22 chars vs 18) in both `GNN_WPDashboard_Updater::sanitize_package_url()` and `GNN_WPDashboard_Installer::sanitize_package_url()` using `-strlen( $suffix )`.
+- **WordPress 7.1 Compatibility:** Updated `Tested up to: 7.1` in `gnn-wpdashboard.php` and `$res->tested = '7.1'` in `GNN_WPDashboard_Updater`.
+- **Updater State Tracking:** Added `upgrader_pre_install` (`pre_install()`) to record pre-update active state and `wp_clean_plugins_cache( true )` inside `post_install()`.
+- **Accessibility & DOM Hygiene:** Added WCAG 2.1 `Tab`/`Shift+Tab` focus trap to `#details-modal`, replaced `notifText.innerHTML` with DOM API nodes, and passed `GNNWPDashboard.version` via `wp_localize_script()`.
+- **i18n Sync:** Regenerated `.pot`, `.po`, and binary `.mo` for `1.2.4`.
+
+---
+
 ## Session: Comprehensive WP 7.0, Security & Vanilla JS Audit (v1.2.2) — 2026-11-18
 
 ### Security, Standards & Modernization

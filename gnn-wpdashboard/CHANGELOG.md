@@ -4,6 +4,17 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.2.4] - 2026-11-20
+
+### Fixed & Improved
+- **Paket URL Host Kontrolü:** `GNN_WPDashboard_Updater::sanitize_package_url()` ve `GNN_WPDashboard_Installer::sanitize_package_url()` içindeki `.githubusercontent.com` son ek uzunluk hatası (`-18` → `-strlen($suffix)`) düzeltildi
+- **WordPress 7.1 Uyumluluğu:** Eklenti başlığı (`Tested up to: 7.1`) ve updater (`$res->tested = '7.1'`) güncel kararlı WordPress 7.1 sürümüyle senkronize edildi
+- **Updater `pre_install` / `post_install`:** Güncelleme öncesi aktiflik durumu `upgrader_pre_install` kancasıyla kaydedilerek `post_install()` içinde önbellek temizliği (`wp_clean_plugins_cache`) ve güvenli yeniden etkinleştirme sağlandı
+- **Erişilebilirlik & Frontend:** `#details-modal` için WCAG 2.1 `Tab`/`Shift+Tab` focus trap eklendi; güncelleme bildirimi DOM API'ye geçirildi ve JS sürüm fallback'i `GNNWPDashboard.version` üzerinden dinamikleştirildi
+- **Çeviri Senkronizasyonu:** `.pot`, `.po` ve derlenmiş `.mo` dosyaları `1.2.4` sürümüne güncellendi
+
+---
+
 ## [1.2.3] - 2026-11-18
 
 ### Added
