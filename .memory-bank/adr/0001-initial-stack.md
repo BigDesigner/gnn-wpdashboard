@@ -1,6 +1,6 @@
 # ADR 0001: Technical Architecture & Ecosystem Integration
 
-- **Status**: Accepted
+- **Status**: Superseded by [ADR 0002](0002-modern-architecture-and-wp7-standards.md)
 - **Confidence**: Verified
 - **Date**: 2026-08-05
 

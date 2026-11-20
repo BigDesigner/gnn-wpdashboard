@@ -4,15 +4,15 @@
   "status": "ACTIVE",
   "mode": "Interactive",
   "preferred_language": "tr",
-  "timestamp": "2026-11-20T03:37:00+03:00",
+  "timestamp": "2026-11-20T04:10:00+03:00",
   "active_branch": "main",
-  "last_commit": "b1e5a9d",
+  "last_commit": "402e875",
   "git_history_available": true,
-  "worktree_status": "modified",
+  "worktree_status": "clean",
   "current_sprint": {
-    "sprint_id": "v1.2.4-release",
+    "sprint_id": "v1.2.4-released",
     "active_tasks": [
-      "Released v1.2.4 with githubusercontent host fix, WP 7.1 compat, pre_install state tracking & modal focus trap"
+      "Synchronized .memory-bank, ADR, bugs, and .tasks documentation with v1.2.4"
     ]
   },
   "tracked_memory_areas": {
