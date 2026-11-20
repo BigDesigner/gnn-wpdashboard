@@ -5,7 +5,7 @@
  * Description:       Eklentilerinizi tek bir panelden kurmanıza, güncellemenize ve yönetmenize olanak tanır.
  * Version:           1.2.3
  * Requires at least: 6.7
- * Tested up to:      7.0
+ * Tested up to:      7.1
  * Requires PHP:      7.4
  * Author:            BigDesigner
  * Author URI:        https://github.com/BigDesigner
@@ -183,6 +183,7 @@ class GNN_WPDashboard {
 			array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
 				'nonce'    => wp_create_nonce( 'gnn_wpdashboard_nonce' ),
+				'version'  => GNN_WPDASHBOARD_VERSION,
 			)
 		);
 	}

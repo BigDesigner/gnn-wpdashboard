@@ -56,6 +56,13 @@ class GNN_WPDashboard_Updater {
 	private $repo = 'gnn-wpdashboard';
 
 	/**
+	 * Track whether the plugin was active prior to a WP core update.
+	 *
+	 * @var bool
+	 */
+	private $was_active = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string $file    Main plugin file.
@@ -68,6 +75,7 @@ class GNN_WPDashboard_Updater {
 
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'check_update' ) );
 		add_filter( 'plugins_api', array( $this, 'plugin_info' ), 10, 3 );
+		add_filter( 'upgrader_pre_install', array( $this, 'pre_install' ), 10, 2 );
 		add_filter( 'upgrader_post_install', array( $this, 'post_install' ), 10, 3 );
 		add_action( 'admin_init', array( $this, 'handle_manual_check' ) );
 	}
@@ -117,7 +125,7 @@ class GNN_WPDashboard_Updater {
 				$res->url         = 'https://github.com/' . $this->owner . '/' . $this->repo;
 				$res->package     = $download_url;
 				$res->requires    = '6.7';
-				$res->tested      = '7.0';
+				$res->tested      = '7.1';
 				$res->requires_php = '7.4';
 
 				if ( empty( $transient->response ) || ! is_array( $transient->response ) ) {
@@ -159,7 +167,7 @@ class GNN_WPDashboard_Updater {
 		$res->author        = '<a href="https://github.com/BigDesigner" target="_blank" rel="noopener noreferrer">BigDesigner</a>';
 		$res->homepage      = 'https://github.com/' . $this->owner . '/' . $this->repo;
 		$res->requires      = '6.7';
-		$res->tested        = '7.0';
+		$res->tested        = '7.1';
 		$res->requires_php  = '7.4';
 		$res->download_link = $download_url ? $download_url : '';
 		$res->sections      = array(
@@ -168,6 +176,24 @@ class GNN_WPDashboard_Updater {
 		);
 
 		return $res;
+	}
+
+	/**
+	 * Capture active state before WordPress core replaces the plugin directory.
+	 *
+	 * @param bool|WP_Error $return     Default return value.
+	 * @param array         $hook_extra Extra arguments passed to hooked filters.
+	 * @return bool|WP_Error
+	 */
+	public function pre_install( $return, $hook_extra ) {
+		if ( ! empty( $hook_extra['plugin'] ) && $hook_extra['plugin'] === $this->plugin_basename ) {
+			if ( ! function_exists( 'is_plugin_active' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
+			$this->was_active = is_plugin_active( $this->plugin_basename );
+		}
+
+		return $return;
 	}
 
 	/**
@@ -197,8 +223,11 @@ class GNN_WPDashboard_Updater {
 			}
 		}
 
-		if ( is_plugin_active( $this->plugin_basename ) ) {
+		wp_clean_plugins_cache( true );
+
+		if ( $this->was_active ) {
 			activate_plugin( $this->plugin_basename );
+			$this->was_active = false;
 		}
 
 		delete_transient( 'gnn_wpdashboard_github_release' );
@@ -340,8 +369,9 @@ class GNN_WPDashboard_Updater {
 			return false;
 		}
 
-		$host = strtolower( $parsed['host'] );
-		if ( 'github.com' === $host || substr( $host, -18 ) === '.githubusercontent.com' ) {
+		$host   = strtolower( $parsed['host'] );
+		$suffix = '.githubusercontent.com';
+		if ( 'github.com' === $host || substr( $host, -strlen( $suffix ) ) === $suffix ) {
 			return $clean_url;
 		}
 

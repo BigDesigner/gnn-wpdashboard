@@ -302,8 +302,25 @@
 		}
 
 		document.addEventListener('keydown', function (e) {
-			if (e.key === 'Escape' && detailsModal && !detailsModal.classList.contains('hidden')) {
+			if (!detailsModal || detailsModal.classList.contains('hidden')) {
+				return;
+			}
+			if (e.key === 'Escape') {
 				closeModal();
+				return;
+			}
+			if (e.key === 'Tab') {
+				const focusable = detailsModal.querySelectorAll('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])');
+				if (focusable.length === 0) return;
+				const first = focusable[0];
+				const last = focusable[focusable.length - 1];
+				if (e.shiftKey && document.activeElement === first) {
+					e.preventDefault();
+					last.focus();
+				} else if (!e.shiftKey && document.activeElement === last) {
+					e.preventDefault();
+					first.focus();
+				}
 			}
 		});
 
@@ -461,17 +478,25 @@
 			const updateItems = pluginsData.filter(p => p.has_update);
 			if (globalUpdates === 1) {
 				const item = updateItems[0];
-				const safeName = escapeHtml(item.name);
-				const safeVer = escapeHtml(item.latest_version);
 				const typeLabel = item.type === 'theme' ? 'Tema Güncellemesi' : 'Eklenti Güncellemesi';
 				setText('update-notification-title', typeLabel + ' Mevcut');
 				if (notifText) {
-					notifText.innerHTML = `<strong>${safeName}</strong> ${item.type === 'theme' ? 'teması' : 'eklentisi'} için yeni sürüm (v${safeVer}) mevcut. Tıklayarak güncellemeleri görüntüleyin.`;
+					notifText.textContent = '';
+					const strong = document.createElement('strong');
+					strong.textContent = item.name;
+					notifText.appendChild(strong);
+					notifText.appendChild(document.createTextNode(
+						` ${item.type === 'theme' ? 'teması' : 'eklentisi'} için yeni sürüm (v${item.latest_version}) mevcut. Tıklayarak güncellemeleri görüntüleyin.`
+					));
 				}
 			} else {
 				setText('update-notification-title', 'Güncellemeler Mevcut');
 				if (notifText) {
-					notifText.innerHTML = `<strong>${globalUpdates}</strong> öge için yeni sürüm mevcut. Tıklayarak güncellemeleri görüntüleyin.`;
+					notifText.textContent = '';
+					const strong = document.createElement('strong');
+					strong.textContent = String(globalUpdates);
+					notifText.appendChild(strong);
+					notifText.appendChild(document.createTextNode(' öge için yeni sürüm mevcut. Tıklayarak güncellemeleri görüntüleyin.'));
 				}
 			}
 			toggleHidden('update-notification-banner', false);
@@ -493,8 +518,8 @@
 			if (heroIcon) heroIcon.textContent = 'check_circle';
 			setText('hero-status-title', 'Sistem Güncel');
 			const selfItem = pluginsData.find(p => p.slug === 'gnn-wpdashboard');
-			const selfVer = selfItem && selfItem.installed_version ? selfItem.installed_version : '1.2.1';
-			setText('hero-status-sub', 'GNN Dashboard v' + selfVer);
+			const selfVer = (selfItem && selfItem.installed_version) ? selfItem.installed_version : (GNNWPDashboard.version || '');
+			setText('hero-status-sub', selfVer ? 'GNN Dashboard v' + selfVer : 'GNN Dashboard');
 		}
 	}
 

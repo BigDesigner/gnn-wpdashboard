@@ -563,8 +563,9 @@ class GNN_WPDashboard_Installer {
 			return false;
 		}
 
-		$host = strtolower( $parsed['host'] );
-		if ( 'github.com' === $host || substr( $host, -18 ) === '.githubusercontent.com' ) {
+		$host   = strtolower( $parsed['host'] );
+		$suffix = '.githubusercontent.com';
+		if ( 'github.com' === $host || substr( $host, -strlen( $suffix ) ) === $suffix ) {
 			return $clean_url;
 		}
 
