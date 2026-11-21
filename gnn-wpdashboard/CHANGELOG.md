@@ -4,6 +4,13 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.2.5] - 2026-11-21
+
+### Fixed & Improved
+- **Unified GitHub Updater Standard:** `GNN_WPDashboard_Updater` sınıfı ortak GNN GitHub Updater standardına uyarlandı (transient önbellekleme, ZIP varlık önceliklendirme, `pre_install`/`post_install` aktiflik koruma ve güvenli host kontrolü).
+
+---
+
 ## [1.2.4] - 2026-11-20
 
 ### Fixed & Improved
