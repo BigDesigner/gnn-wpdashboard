@@ -4,6 +4,13 @@ All notable changes to **GNN WPDashboard** are documented here.
 
 ---
 
+## [1.2.6] - 2026-11-25
+
+### Fixed
+- **Disk-First Local Version Read:** `GNN_WPDashboard_Updater::get_local_version()` güncellenerek yerel sürümün önce diskten (`VERSION` / eklenti başlığı) okunması sağlandı; güncelleme sonrası eski bellek içi sürüm sabitinin yanlış güncelleme uyarısına yol açması engellendi.
+
+---
+
 ## [1.2.5] - 2026-11-21
 
 ### Fixed & Improved
